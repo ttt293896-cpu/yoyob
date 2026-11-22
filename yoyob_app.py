@@ -9,8 +9,8 @@ app = Flask(__name__)
 app.secret_key = "yoyob_super_secret_key_change_me"
 
 # Cloudinary Configuration
-CLOUDINARY_CLOUD_NAME = "tgu8n7hi"  # Replace with actual Cloud Name if provided
-CLOUDINARY_UPLOAD_PRESET = "yoyob_preset"  # Replace with actual upload preset if provided
+CLOUDINARY_CLOUD_NAME = "tgu8n7hi"
+CLOUDINARY_UPLOAD_PRESET = "yoyob_preset"
 
 DATA_FILE = "yoyob_data.json"
 UPLOAD_FOLDER = "uploads"
@@ -107,7 +107,6 @@ def load_data():
                 data = json.load(f)
                 changed = False
                 for v in data.get("videos", []):
-                    # מוודא ששדה הצפיות קיים לכל סרטון
                     if "views" not in v:
                         v["views"] = 0
                         changed = True
@@ -1144,8 +1143,7 @@ def watch(vid_id):
     if not video:
         return redirect(url_for("index"))
 
-    # סופר צפייה בכל כניסה לעמוד הצפייה ושומר מיד לקובץ הנתונים
-    video["views"] = video.get("views", 0) + 1
+    video["views"] = int(video.get("views", 0)) + 1
     save_data(data)
 
     filename = video.get("web_file") or os.path.basename(video.get("file_path", ""))
