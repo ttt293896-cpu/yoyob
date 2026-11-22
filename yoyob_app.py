@@ -3,6 +3,7 @@ import json
 import uuid
 from flask import Flask, request, session, redirect, url_for, send_from_directory, render_template_string, jsonify
 from werkzeug.utils import secure_filename
+import cv2
 
 app = Flask(__name__)
 app.secret_key = "yoyob_super_secret_key_change_me"
@@ -2129,4 +2130,5 @@ def logout():
     return redirect(url_for("index"))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
