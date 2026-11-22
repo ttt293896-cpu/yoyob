@@ -4,6 +4,7 @@ import uuid
 from flask import Flask, request, session, redirect, url_for, send_from_directory, render_template_string, jsonify
 from werkzeug.utils import secure_filename
 import cv2
+from pymongo import MongoClient
 
 app = Flask(__name__)
 app.secret_key = "yoyob_super_secret_key_change_me"
@@ -12,7 +13,12 @@ app.secret_key = "yoyob_super_secret_key_change_me"
 CLOUDINARY_CLOUD_NAME = "tgu8n7hi"
 CLOUDINARY_UPLOAD_PRESET = "yoyob_preset"
 
-DATA_FILE = "yoyob_data.json"
+# MongoDB Configuration
+MONGO_URI = "mongodb+srv://ttt293896_db_user:FA0aAIgeH89dhg70@cluster0.gcvvb1f.mongodb.net/?retryWrites=true&w=majority"
+client = MongoClient(MONGO_URI)
+db = client["yoyob_database"]
+collection = db["yoyob_collection"]
+
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -41,47 +47,9 @@ LANGUAGES = {
 }
 
 def load_data():
-    if os.path.exists(DATA_FILE):
-        try:
-            with open(DATA_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                changed = False
-                for v in data.get("videos", []):
-                    if "views" not in v:
-                        v["views"] = 0
-                        changed = True
-                    if "created_at" not in v:
-                        v["created_at"] = 0
-                        changed = True
-                    for c in v.get("comments", []):
-                        if "id" not in c:
-                            c["id"] = str(uuid.uuid4())
-                            changed = True
-                        if "likes" not in c:
-                            c["likes"] = []
-                            changed = True
-                        if "replies" not in c:
-                            c["replies"] = []
-                            changed = True
-                if changed:
-                    save_data(data)
-                return data
-        except Exception:
-            pass
-    data = {"language": "עברית", "users": {}, "videos": []}
-    save_data(data)
-    return data
-
-def save_data(data):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-def migrate_thumbnails():
-    if not os.path.exists(DATA_FILE):
-        return
-    try:
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    doc = collection.find_one({"_id": "main_data"})
+    if doc and "data" in doc:
+        data = doc["data"]
         changed = False
         for v in data.get("videos", []):
             if "views" not in v:
@@ -90,27 +58,60 @@ def migrate_thumbnails():
             if "created_at" not in v:
                 v["created_at"] = 0
                 changed = True
-            if not v.get("thumb_file") and v.get("web_file") and not v["web_file"].startswith("http"):
-                v_path = v.get("file_path") or os.path.join(UPLOAD_FOLDER, v.get("web_file", ""))
-                if os.path.exists(v_path):
-                    try:
-                        cap = cv2.VideoCapture(v_path)
-                        success, frame = cap.read()
-                        if not success or frame is None or frame.size == 0:
-                            cap.set(cv2.CAP_PROP_POS_MSEC, 1000)
-                            success, frame = cap.read()
-                        if success and frame is not None and frame.size > 0:
-                            t_name = f"thumb_{uuid.uuid4().hex}.jpg"
-                            cv2.imwrite(os.path.join(UPLOAD_FOLDER, t_name), frame)
-                            v["thumb_file"] = t_name
-                            changed = True
-                        cap.release()
-                    except Exception as e:
-                        print("Migration thumb error:", e)
+            for c in v.get("comments", []):
+                if "id" not in c:
+                    c["id"] = str(uuid.uuid4())
+                    changed = True
+                if "likes" not in c:
+                    c["likes"] = []
+                    changed = True
+                if "replies" not in c:
+                    c["replies"] = []
+                    changed = True
         if changed:
             save_data(data)
-    except Exception as e:
-        print("Migration error:", e)
+        return data
+    
+    initial_data = {"language": "עברית", "users": {}, "videos": []}
+    save_data(initial_data)
+    return initial_data
+
+def save_data(data):
+    collection.update_one(
+        {"_id": "main_data"},
+        {"$set": {"data": data}},
+        upsert=True
+    )
+
+def migrate_thumbnails():
+    data = load_data()
+    changed = False
+    for v in data.get("videos", []):
+        if "views" not in v:
+            v["views"] = 0
+            changed = True
+        if "created_at" not in v:
+            v["created_at"] = 0
+            changed = True
+        if not v.get("thumb_file") and v.get("web_file") and not v["web_file"].startswith("http"):
+            v_path = v.get("file_path") or os.path.join(UPLOAD_FOLDER, v.get("web_file", ""))
+            if os.path.exists(v_path):
+                try:
+                    cap = cv2.VideoCapture(v_path)
+                    success, frame = cap.read()
+                    if not success or frame is None or frame.size == 0:
+                        cap.set(cv2.CAP_PROP_POS_MSEC, 1000)
+                        success, frame = cap.read()
+                    if success and frame is not None and frame.size > 0:
+                        t_name = f"thumb_{uuid.uuid4().hex}.jpg"
+                        cv2.imwrite(os.path.join(UPLOAD_FOLDER, t_name), frame)
+                        v["thumb_file"] = t_name
+                        changed = True
+                    cap.release()
+                except Exception as e:
+                    print("Migration thumb error:", e)
+    if changed:
+        save_data(data)
 
 migrate_thumbnails()
 
