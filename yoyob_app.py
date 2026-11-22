@@ -347,7 +347,6 @@ HTML_BASE = """
             if (box) box.classList.toggle('open');
         }
 
-        // Open/Close Channel Popup Modal
         async function openChannelModal(username) {
             const overlay = document.getElementById('channelModalOverlay');
             const inner = document.getElementById('channelModalInner');
@@ -479,14 +478,10 @@ def index():
 
     cat_idx = request.args.get("cat", type=int, default=0)
     q = request.args.get("q", "").strip().lower()
-    channel = request.args.get("channel", "")
 
-    if channel:
-        # If any old channel links are used, open the modal via JS or fallback
-        pass
-    elif 0 < cat_idx < len(t["cats"]):
+    if 0 < cat_idx < len(t["cats"]):
         chosen_cat = t["cats"][cat_idx]
-        all_vids = [v for v in all_vids if v.get("category"] == chosen_cat or v.get("cat_idx") == cat_idx]
+        all_vids = [v for v in all_vids if v.get("category") == chosen_cat or v.get("cat_idx") == cat_idx]
 
     if q:
         all_vids = [v for v in all_vids if q in v["title"].lower() or q in v.get("description", "").lower() or q in v["owner"].lower()]
