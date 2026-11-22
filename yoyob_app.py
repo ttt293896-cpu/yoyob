@@ -20,7 +20,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 LANGUAGES = {
     "עברית": {
         "dir": "rtl", "country": "ישראל", "search": "חיפוש", "create": "＋ יצירה",
-        "home": "דף הבית", "yobshort": "Yobshort", "no_shorts": "אין עדיין סרטוני Yobshort. העלה סרטון וסמן אותו כ-Yobshort!", "studio": "Yoyob Studio", "subscriptions": "מינויים", "subs_feed": "פיד מינויים", "subs_count": "מנויים", "no_subs": "עדיין לא נרשמת לאף ערוץ.",
+        "home": "דף הבית", "yobshort": "Yobshort", "no_shorts": "אין עדיין סרטוני Yobshort. העלה סרטון וסמן אותו כ-Yobshort!", "studio": "Yoyob Studio", "content": "תוכן", "subscriptions": "מינויים", "subs_feed": "פיד מינויים", "subs_count": "מנויים", "no_subs": "עדיין לא נרשמת לאף ערוץ.",
         "liked": "סרטונים שאהבתי", "saved": "סרטונים שמורים", "settings": "הגדרות שפה", "login": "התחברות",
         "register": "הרשמה", "logout": "התנתקות",
         "no_videos": "אין עדיין סרטונים בפיד. התחבר ולחץ על '＋ יצירה' כדי להעלות את הסרטון הראשון!",
@@ -30,7 +30,7 @@ LANGUAGES = {
     },
     "English": {
         "dir": "ltr", "country": "USA", "search": "Search", "create": "＋ Create",
-        "home": "Home", "yobshort": "Yobshort", "no_shorts": "No Yobshort videos yet. Upload a video and mark it as Yobshort!", "studio": "Yoyob Studio", "subscriptions": "Subscriptions", "subs_feed": "Subscriptions Feed", "subs_count": "subscribers", "no_subs": "You are not subscribed to any channels yet.",
+        "home": "Home", "yobshort": "Yobshort", "no_shorts": "No Yobshort videos yet. Upload a video and mark it as Yobshort!", "studio": "Yoyob Studio", "content": "Content", "subscriptions": "Subscriptions", "subs_feed": "Subscriptions Feed", "subs_count": "subscribers", "no_subs": "You are not subscribed to any channels yet.",
         "liked": "Liked Videos", "saved": "Saved Videos", "settings": "Language Settings", "login": "Login",
         "register": "Sign Up", "logout": "Logout",
         "no_videos": "No videos yet. Log in and click '＋ Create' to upload the first video!",
@@ -40,7 +40,7 @@ LANGUAGES = {
     },
     "Deutsch": {
         "dir": "ltr", "country": "Deutschland", "search": "Suchen", "create": "＋ Erstellen",
-        "home": "Startseite", "yobshort": "Yobshort", "no_shorts": "Noch keine Yobshort-Videos vorhanden.", "studio": "Yoyob Studio", "subscriptions": "Abos", "subs_feed": "Abo-Feed", "subs_count": "Abonnenten", "no_subs": "Du hast noch keine Kanäle abonniert.",
+        "home": "Startseite", "yobshort": "Yobshort", "no_shorts": "Noch keine Yobshort-Videos vorhanden.", "studio": "Yoyob Studio", "content": "Inhalt", "subscriptions": "Abos", "subs_feed": "Abo-Feed", "subs_count": "Abonnenten", "no_subs": "Du hast noch keine Kanäle abonniert.",
         "liked": "Videos, die ich mag", "saved": "Gespeicherte Videos", "settings": "Spracheinstellungen", "login": "Anmelden",
         "register": "Registrieren", "logout": "Abmelden",
         "no_videos": "Noch keine Videos vorhanden. Melde dich an und klicke auf '＋ Erstellen'!",
@@ -50,7 +50,7 @@ LANGUAGES = {
     },
     "Français": {
         "dir": "ltr", "country": "France", "search": "Rechercher", "create": "＋ Créer",
-        "home": "Accueil", "yobshort": "Yobshort", "no_shorts": "Aucune vidéo Yobshort pour le moment.", "studio": "Yoyob Studio", "subscriptions": "Abonnements", "subs_feed": "Flux d'abonnements", "subs_count": "abonnés", "no_subs": "Vous n'êtes abonné à aucune chaîne.",
+        "home": "Accueil", "yobshort": "Yobshort", "no_shorts": "Aucune vidéo Yobshort pour le moment.", "studio": "Yoyob Studio", "content": "Contenu", "subscriptions": "Abonnements", "subs_feed": "Flux d'abonnements", "subs_count": "abonnés", "no_subs": "Vous n'êtes abonné à aucune chaîne.",
         "liked": "Vidéos aimées", "saved": "Vidéos enregistrées", "settings": "Paramètres de langue", "login": "Connexion",
         "register": "S'inscrire", "logout": "Déconnexion",
         "no_videos": "Aucune vidéo pour le moment. Connectez-vous et cliquez sur '＋ Créer' !",
@@ -60,7 +60,7 @@ LANGUAGES = {
     },
     "Español": {
         "dir": "ltr", "country": "España", "search": "Buscar", "create": "＋ Crear",
-        "home": "Inicio", "yobshort": "Yobshort", "no_shorts": "Aún no hay videos en Yobshort.", "studio": "Yoyob Studio", "subscriptions": "Suscripciones", "subs_feed": "Feed de suscripciones", "subs_count": "suscriptores", "no_subs": "Aún no te has suscrito a ningún canal.",
+        "home": "Inicio", "yobshort": "Yobshort", "no_shorts": "Aún no hay videos en Yobshort.", "studio": "Yoyob Studio", "content": "Contenido", "subscriptions": "Suscripciones", "subs_feed": "Feed de suscripciones", "subs_count": "suscriptores", "no_subs": "Aún no te has suscrito a ningún canal.",
         "liked": "Videos que me gustan", "saved": "Videos guardados", "settings": "Idioma", "login": "Iniciar sesión",
         "register": "Registrarse", "logout": "Cerrar sesión",
         "no_videos": "Aún no hay videos. ¡Inicia sesión y haz clic en '＋ Crear'!",
@@ -70,7 +70,7 @@ LANGUAGES = {
     },
     "Русский": {
         "dir": "ltr", "country": "Россия", "search": "Поиск", "create": "＋ Создать",
-        "home": "Главная", "yobshort": "Yobshort", "no_shorts": "Видео Yobshort пока нет.", "studio": "Yoyob Studio", "subscriptions": "Подписки", "subs_feed": "Фид подписок", "subs_count": "подписчиков", "no_subs": "Вы ещё не подписаны ни на один канал.",
+        "home": "Главная", "yobshort": "Yobshort", "no_shorts": "Видео Yobshort пока нет.", "studio": "Yoyob Studio", "content": "Контент", "subscriptions": "Подписки", "subs_feed": "Фид подписок", "subs_count": "подписчиков", "no_subs": "Вы ещё не подписаны ни на один канал.",
         "liked": "Понравившиеся", "saved": "Сохраненные", "settings": "Настройки языка", "login": "Войти",
         "register": "Регистрация", "logout": "Выйти",
         "no_videos": "Видео пока нет. Войдите и нажмите '＋ Создать', чтобы загрузить первое видео!",
@@ -80,7 +80,7 @@ LANGUAGES = {
     },
     "العربية": {
         "dir": "rtl", "country": "العالم العربي", "search": "بحث", "create": "＋ إنشاء",
-        "home": "الرئيسية", "yobshort": "Yobshort", "no_shorts": "لا توجد فيديوهات Yobshort بعد.", "studio": "استوديو Yoyob", "subscriptions": "الاشتراكات", "subs_feed": "خلاصة الاشتراكات", "subs_count": "مشترك", "no_subs": "لم تشترك في أي قناة بعد.",
+        "home": "الرئيسية", "yobshort": "Yobshort", "no_shorts": "لا توجد فيديوهات Yobshort بعد.", "studio": "استوديو Yoyob", "content": "المحتوى", "subscriptions": "الاشتراكات", "subs_feed": "خلاصة الاشتراكات", "subs_count": "مشترك", "no_subs": "لم تشترك في أي قناة بعد.",
         "liked": "فيديوهات أعجبتني", "saved": "الفيديوهات المحفوظة", "settings": "إعدادات اللغة", "login": "تسجيل الدخول",
         "register": "إنشاء حساب", "logout": "تسجيل الخروج",
         "no_videos": "لا توجد فيديوهات بعد. سجل الدخول واضغط على '＋ إنشاء' لرفع أول فيديو!",
@@ -90,7 +90,7 @@ LANGUAGES = {
     },
     "日本語": {
         "dir": "ltr", "country": "日本", "search": "検索", "create": "＋ 作成",
-        "home": "ホーム", "yobshort": "Yobshort", "no_shorts": "Yobshort動画はまだありません。", "studio": "Yoyob Studio", "subscriptions": "登録チャンネル", "subs_feed": "登録チャンネルフィード", "subs_count": "人の登録者", "no_subs": "まだどのチャンネルにも登録していません。",
+        "home": "ホーム", "yobshort": "Yobshort", "no_shorts": "Yobshort動画はまだありません。", "studio": "Yoyob Studio", "content": "コンテンツ", "subscriptions": "登録チャンネル", "subs_feed": "登録チャンネルフィード", "subs_count": "人の登録者", "no_subs": "まだどのチャンネルにも登録していません。",
         "liked": "高く評価した動画", "saved": "保存済み動画", "settings": "言語設定", "login": "ログイン",
         "register": "新規登録", "logout": "ログアウト",
         "no_videos": "まだ動画がありません。ログインして「＋ 作成」から最初の動画をアップロードしよう！",
@@ -109,6 +109,9 @@ def load_data():
                 for v in data.get("videos", []):
                     if "views" not in v:
                         v["views"] = 0
+                        changed = True
+                    if "created_at" not in v:
+                        v["created_at"] = 0
                         changed = True
                     for c in v.get("comments", []):
                         if "id" not in c:
@@ -144,6 +147,9 @@ def migrate_thumbnails():
             if "views" not in v:
                 v["views"] = 0
                 changed = True
+            if "created_at" not in v:
+                v["created_at"] = 0
+                changed = True
             if not v.get("thumb_file") and v.get("web_file") and not v["web_file"].startswith("http"):
                 v_path = v.get("file_path") or os.path.join(UPLOAD_FOLDER, v.get("web_file", ""))
                 if os.path.exists(v_path):
@@ -171,6 +177,58 @@ migrate_thumbnails()
 def get_lang():
     lang_name = session.get("language", "עברית")
     return lang_name, LANGUAGES.get(lang_name, LANGUAGES["עברית"])
+
+def get_notifications(data, username):
+    """Generates notifications for a user based on subscriptions and comment replies."""
+    if not username or username not in data["users"]:
+        return []
+    
+    user_info = data["users"][username]
+    subs = user_info.get("subscribers", []) # channels this user is subscribed to
+    # Wait, in the schema: user_info['subscribers'] holds users subscribed *to* this user.
+    # To find who *this* user is subscribed to:
+    my_subs = [uname for uname, uinf in data["users"].items() if username in uinf.get("subscribers", [])]
+    
+    notifications = []
+    
+    # 1. New videos from subscribed channels
+    for v in data["videos"]:
+        if v["owner"] in my_subs:
+            owner_name = data["users"].get(v["owner"], {}).get("channel_name", v["owner"])
+            notifications.append({
+                "type": "video",
+                "text": f"הערוץ @{owner_name} העלה סרטון חדש: \"{v['title']}\"",
+                "link": url_for('watch', vid_id=v['id']) if not v.get('is_short') else url_for('yobshort', v=v['id']),
+                "time": v.get("created_at", 0)
+            })
+
+    # 2. Replies to user's comments or comments on user's videos
+    for v in data["videos"]:
+        # If user owns the video, any new comment is a notification
+        if v["owner"] == username:
+            for c in v.get("comments", []):
+                if c["user"] != username:
+                    c_author = data["users"].get(c["user"], {}).get("channel_name", c["user"])
+                    notifications.append({
+                        "type": "comment",
+                        "text": f"@{c_author} הגיב בסרטון שלך \"{v['title']}\"",
+                        "link": url_for('studio_comments', vid_id=v['id']),
+                        "time": 0
+                    })
+        # Check replies in comments
+        for c in v.get("comments", []):
+            if c["user"] == username:
+                for r in c.get("replies", []):
+                    if r["user"] != username:
+                        r_author = data["users"].get(r["user"], {}).get("channel_name", r["user"])
+                        notifications.append({
+                            "type": "reply",
+                            "text": f"@{r_author} השיב לתגובה שלך בסרטון \"{v['title']}\"",
+                            "link": url_for('watch', vid_id=v['id']) if not v.get('is_short') else url_for('yobshort', v=v['id']),
+                            "time": 0
+                        })
+                        
+    return notifications
 
 def build_mixed_feed(regular_videos, short_videos):
     sections = []
@@ -235,7 +293,7 @@ HTML_BASE = """
         .search-bar button { background: #252525; border: 1px solid #303030; color: #f1f1f1; padding: 9px 18px; cursor: pointer; font-weight: bold; border-radius: 0 20px 20px 0; }
         [dir="rtl"] .search-bar button { border-radius: 20px 0 0 20px; }
 
-        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .header-actions { display: flex; align-items: center; gap: 10px; position: relative; }
         .btn { background: #272727; color: #f1f1f1; border: none; padding: 8px 14px; border-radius: 18px; cursor: pointer; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
         .btn:hover { background: #3a3a3a; }
         .btn-accent { background: #3ea6ff; color: #0f0f0f; }
@@ -243,6 +301,16 @@ HTML_BASE = """
         .btn-red { background: #c0392b; color: white; }
         .btn-red:hover { background: #e74c3c; }
         .btn-sm { padding: 4px 10px; font-size: 11px; border-radius: 12px; }
+
+        /* Notification bell dropdown */
+        .notif-wrap { position: relative; display: inline-block; }
+        .notif-badge { position: absolute; top: -4px; right: -4px; background: #ff3333; color: white; font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold; }
+        .notif-dropdown { display: none; position: absolute; left: 0; top: 45px; width: 320px; background: #1f1f1f; border: 1px solid #333; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.8); z-index: 1000; max-height: 400px; overflow-y: auto; }
+        .notif-dropdown.open { display: block; }
+        .notif-header { padding: 12px 16px; border-bottom: 1px solid #2a2a2a; font-weight: bold; font-size: 14px; background: #252525; border-radius: 12px 12px 0 0; }
+        .notif-item { padding: 12px 16px; border-bottom: 1px solid #2a2a2a; font-size: 13px; display: block; color: #f1f1f1; }
+        .notif-item:hover { background: #2a2a2a; }
+        .notif-empty { padding: 20px; text-align: center; color: #aaa; font-size: 13px; }
 
         .layout { display: flex; min-height: calc(100vh - 64px); }
         aside { width: 220px; background: #0f0f0f; padding: 12px; border-inline-end: 1px solid #222; flex-shrink: 0; }
@@ -342,6 +410,10 @@ HTML_BASE = """
                 }
             }
         }
+        function toggleNotifications() {
+            var box = document.getElementById('notifDropdown');
+            if (box) box.classList.toggle('open');
+        }
     </script>
 </head>
 <body>
@@ -359,6 +431,25 @@ HTML_BASE = """
     </form>
 
     <div class="header-actions">
+        {% if current_user %}
+            {% set notifs = get_notifications(data, current_user) %}
+            <div class="notif-wrap">
+                <button type="button" class="btn" onclick="toggleNotifications()" title="עדכונים והודעות">
+                    🔔 {% if notifs|length > 0 %}<span class="notif-badge">{{ notifs|length }}</span>{% endif %}
+                </button>
+                <div class="notif-dropdown" id="notifDropdown">
+                    <div class="notif-header">🔔 עדכונים לערוצים שנרשמת / תגובות</div>
+                    {% if not notifs %}
+                        <div class="notif-empty">אין עדכונים חדשים כרגע.</div>
+                    {% else %}
+                        {% for n in notifs|reverse %}
+                            <a href="{{ n.link }}" class="notif-item">{{ n.text }}</a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
         <a href="{{ url_for('settings') }}" class="btn">⚙️</a>
         <a href="{{ url_for('upload') }}" class="btn">{{ t.create }}</a>
         {% if current_user %}
@@ -377,7 +468,10 @@ HTML_BASE = """
     <aside>
         <a href="{{ url_for('index') }}" class="nav-item {{ 'active' if active_nav == 'home' else '' }}">⌂ &nbsp; {{ t.home }}</a>
         <a href="{{ url_for('yobshort') }}" class="nav-item {{ 'active' if active_nav == 'yobshort' else '' }}">📱 &nbsp; {{ t.yobshort }}</a>
-        <a href="{{ url_for('studio') }}" class="nav-item {{ 'active' if active_nav == 'studio' else '' }}">🎬 &nbsp; {{ t.studio }}</a>
+        <a href="{{ url_for('studio') }}" class="nav-item {{ 'active' if active_nav in ['studio', 'studio_content'] else '' }}">🎬 &nbsp; {{ t.studio }}</a>
+        {% if current_user %}
+            <a href="{{ url_for('studio_content') }}" class="nav-item {{ 'active' if active_nav == 'studio_content' else '' }}" style="padding-inline-start: 32px; font-size: 13px;">📁 &nbsp; {{ t.content }}</a>
+        {% endif %}
         <a href="{{ url_for('subscriptions') }}" class="nav-item {{ 'active' if active_nav == 'subs' else '' }}">▰ &nbsp; {{ t.subscriptions }}</a>
         <a href="{{ url_for('subscriptions_feed') }}" class="nav-item {{ 'active' if active_nav == 'subs_feed' else '' }}">📺 &nbsp; {{ t.subs_feed }}</a>
         <a href="{{ url_for('liked') }}" class="nav-item {{ 'active' if active_nav == 'liked' else '' }}">♡ &nbsp; {{ t.liked }}</a>
@@ -408,8 +502,8 @@ def render_page(content_html, active_nav="home", **kwargs):
     if current_user and current_user not in data["users"]:
         session.pop("user", None)
         current_user = None
-    rendered_content = render_template_string(content_html, data=data, t=t, lang_name=lang_name, current_user=current_user, **kwargs)
-    return render_template_string(HTML_BASE, content=rendered_content, data=data, t=t, current_user=current_user, active_nav=active_nav)
+    rendered_content = render_template_string(content_html, data=data, t=t, lang_name=lang_name, current_user=current_user, get_notifications=get_notifications, **kwargs)
+    return render_template_string(HTML_BASE, content=rendered_content, data=data, t=t, current_user=current_user, active_nav=active_nav, get_notifications=get_notifications)
 
 @app.route("/uploads/<path:filename>")
 def uploaded_file(filename):
@@ -520,7 +614,6 @@ def index():
             {% endif %}
         {% endfor %}
     {% endif %}
-
     """
     return render_page(html, active_nav="home", feed_sections=feed_sections, cat_idx=cat_idx)
 
@@ -640,11 +733,17 @@ def yobshort():
             flex: 1;
             min-width: 0;
         }
+        .short-channel-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
         .short-channel {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 8px;
             font-weight: bold;
             font-size: 14px;
         }
@@ -687,7 +786,7 @@ def yobshort():
             transform: scale(1.08);
             background: rgba(65, 65, 65, 0.95);
         }
-        .short-action-btn.liked, .short-action-btn.chat-open {
+        .short-action-btn.liked, .short-action-btn.saved, .short-action-btn.chat-open {
             background: #3ea6ff;
             color: #0f0f0f;
         }
@@ -834,6 +933,8 @@ def yobshort():
                         {% set ch_name = owner.get('channel_name', v.owner) %}
                         {% set filename = v.get('web_file') or '' %}
                         {% set liked = current_user in v.get('likes', []) %}
+                        {% set saved = current_user in v.get('saves', []) %}
+                        {% set is_sub = current_user in owner.get('subscribers', []) %}
                         <div class="short-slide" id="short-{{ v.id }}" data-vid-id="{{ v.id }}">
                             <video loop playsinline {% if v.get('thumb_file') %}poster="{{ url_for('uploaded_file', filename=v.thumb_file) }}"{% endif %} onclick="this.paused ? this.play() : this.pause()">
                                 <source src="{{ url_for('uploaded_file', filename=filename) }}">
@@ -844,16 +945,23 @@ def yobshort():
 
                                 <div class="short-bottom">
                                     <div class="short-info">
-                                        <a href="{{ url_for('index', channel=v.owner) }}" class="short-channel">
-                                            <div class="avatar" style="width:34px; height:34px; font-size:14px; background: {{ owner.get('avatar_color', '#16a085') }};">
-                                                {% if owner.get('avatar_file') %}
-                                                    <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
-                                                {% else %}
-                                                    {{ ch_name[0]|upper }}
-                                                {% endif %}
-                                            </div>
-                                            <span>@{{ ch_name }}</span>
-                                        </a>
+                                        <div class="short-channel-row">
+                                            <a href="{{ url_for('index', channel=v.owner) }}" class="short-channel">
+                                                <div class="avatar" style="width:34px; height:34px; font-size:14px; background: {{ owner.get('avatar_color', '#16a085') }};">
+                                                    {% if owner.get('avatar_file') %}
+                                                        <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
+                                                    {% else %}
+                                                        {{ ch_name[0]|upper }}
+                                                    {% endif %}
+                                                </div>
+                                                <span>@{{ ch_name }}</span>
+                                            </a>
+                                            {% if current_user != v.owner %}
+                                                <button type="button" id="short-sub-btn-{{ v.id }}" onclick="toggleShortSub('{{ v.owner }}', '{{ v.id }}')" class="btn btn-sm" style="background: {{ '#333' if is_sub else '#f1f1f1' }}; color: {{ '#fff' if is_sub else '#0f0f0f' }}; font-weight: bold;">
+                                                    <span id="short-sub-text-{{ v.id }}">{{ t.subscribed if is_sub else t.subscribe }}</span>
+                                                </button>
+                                            {% endif %}
+                                        </div>
                                         <div class="short-title">{{ v.title }}</div>
                                         {% if v.description %}
                                             <div class="short-desc">{{ v.description }}</div>
@@ -864,6 +972,11 @@ def yobshort():
                                         <div>
                                             <button type="button" id="like-btn-{{ v.id }}" onclick="toggleShortLike('{{ v.id }}')" class="short-action-btn {{ 'liked' if liked else '' }}">👍</button>
                                             <div class="short-action-label" id="like-count-{{ v.id }}">{{ v.get('likes', [])|length }}</div>
+                                        </div>
+
+                                        <div>
+                                            <button type="button" id="save-btn-{{ v.id }}" onclick="toggleShortSave('{{ v.id }}')" class="short-action-btn {{ 'saved' if saved else '' }}" title="{{ t.saved }}">💾</button>
+                                            <div class="short-action-label" id="save-count-{{ v.id }}">{{ v.get('saves', [])|length }}</div>
                                         </div>
 
                                         <div>
@@ -935,6 +1048,55 @@ def yobshort():
                         const lbl = document.getElementById('like-count-' + vidId);
                         if (btn) btn.classList.toggle('liked', data.liked);
                         if (lbl) lbl.textContent = data.count;
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            async function toggleShortSave(vidId) {
+                try {
+                    const res = await fetch('/save/' + vidId, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const data = await res.json();
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    if (data.ok) {
+                        const btn = document.getElementById('save-btn-' + vidId);
+                        const lbl = document.getElementById('save-count-' + vidId);
+                        if (btn) btn.classList.toggle('saved', data.saved);
+                        if (lbl) lbl.textContent = data.count;
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            async function toggleShortSub(ownerName, vidId) {
+                try {
+                    const res = await fetch('/subscribe/' + ownerName + '/' + vidId, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const data = await res.json();
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    if (data.ok) {
+                        const btn = document.getElementById('short-sub-btn-' + vidId);
+                        const txt = document.getElementById('short-sub-text-' + vidId);
+                        if (btn) {
+                            btn.style.background = data.subscribed ? '#333' : '#f1f1f1';
+                            btn.style.color = data.subscribed ? '#fff' : '#0f0f0f';
+                        }
+                        if (txt) {
+                            txt.textContent = data.subscribed ? '{{ t.subscribed }}' : '{{ t.subscribe }}';
+                        }
                     }
                 } catch (e) {
                     console.error(e);
@@ -1095,7 +1257,6 @@ def yobshort():
                 }
             }
 
-            // Count a Yobshort view only after 2 continuous seconds of playback.
             const shortViewTimers = new WeakMap();
             const countedShorts = new Set();
             slides.forEach(slide => {
@@ -1320,7 +1481,6 @@ def watch(vid_id):
             if (cntTxt) cntTxt.textContent = data.count;
         }
 
-        // Count only after 2 continuous seconds of actual playback.
         const watchPlayer = document.getElementById('watch-video-player');
         if (watchPlayer) {
             let viewTimer = null;
@@ -1356,7 +1516,6 @@ def watch(vid_id):
 
 @app.route("/view/<vid_id>", methods=["POST"])
 def register_video_view(vid_id):
-    """Register at most one view per video per browser session."""
     viewed = session.get("viewed_video_ids", [])
     if vid_id in viewed:
         data = load_data()
@@ -1373,10 +1532,8 @@ def register_video_view(vid_id):
     video["views"] = int(video.get("views", 0)) + 1
     save_data(data)
     viewed.append(vid_id)
-    # Keep the signed session cookie reasonably small.
     session["viewed_video_ids"] = viewed[-200:]
     return jsonify({"ok": True, "counted": True, "views": video["views"]})
-
 
 @app.route("/save/<vid_id>", methods=["POST"])
 def save_video(vid_id):
@@ -1593,6 +1750,7 @@ def upload():
             if not thumb_url and "/upload/" in video_url:
                 thumb_url = video_url.rsplit(".", 1)[0] + ".jpg"
 
+            import time
             cat_idx = t["cats"].index(cat_name) if cat_name in t["cats"] else 1
             new_vid = {
                 "id": str(uuid.uuid4()),
@@ -1609,6 +1767,7 @@ def upload():
                 "likes": [],
                 "saves": [],
                 "comments": [],
+                "created_at": time.time(),
                 "thumb_color": data["users"][session["user"]].get("avatar_color", "#1f3a52")
             }
             data["videos"].append(new_vid)
@@ -1815,6 +1974,10 @@ def studio():
             <div class="stat-card"><div class="stat-val">{{ total_subs }}</div><div>מנויים בערוץ</div></div>
         </div>
 
+        <div style="margin: 20px 0; display: flex; gap: 12px;">
+            <a href="{{ url_for('studio_content') }}" class="btn btn-accent" style="padding: 12px 20px; font-size: 15px;">📁 מעבר לניהול תוכן הסרטונים</a>
+        </div>
+
         <div class="box" style="max-width:100%; margin:20px 0;">
             <h3>🎨 התאמה אישית לערוץ</h3><br>
             <form method="post" enctype="multipart/form-data">
@@ -1837,8 +2000,25 @@ def studio():
                 <button type="submit" class="btn btn-accent">💾 שמור שינויים בערוץ</button>
             </form>
         </div>
+    </div>
+    """
+    return render_page(html, active_nav="studio", user_info=user_info, my_videos=my_videos, total_views=total_views, total_subs=total_subs)
 
-        <h3 style="margin:20px 0 12px;">📹 הסרטונים שלך</h3>
+@app.route("/studio/content")
+def studio_content():
+    if not session.get("user"):
+        return redirect(url_for("auth"))
+    data = load_data()
+    u = session["user"]
+    my_videos = [v for v in data["videos"] if v["owner"] == u]
+
+    html = """
+    <div style="max-width:950px; margin:0 auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+            <h2>📁 תוכן הערוץ — ניהול סרטונים</h2>
+            <a href="{{ url_for('upload') }}" class="btn btn-accent">＋ העלה סרטון חדש</a>
+        </div>
+
         {% for v in my_videos|reverse %}
             <div class="studio-row">
                 <div class="studio-vid-info">
@@ -1855,19 +2035,74 @@ def studio():
                     </div>
                 </div>
                 <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                    <a href="{{ url_for('studio_comments', vid_id=v.id) }}" class="btn">💬 תגובות ({{ v.get('comments', [])|length }})</a>
-                    <a href="{{ url_for('edit_video', vid_id=v.id) }}" class="btn btn-accent">✏️ לערוך</a>
-                    <form action="{{ url_for('delete_video', vid_id=v.id) }}" method="post">
-                        <button type="submit" class="btn btn-red">🗑 מחק</button>
+                    <a href="{{ url_for('edit_video', vid_id=v.id) }}" class="btn" title="עריכת טמנייל, כותרת ותיאור">✏️ עריכה</a>
+                    <a href="{{ url_for('studio_comments', vid_id=v.id) }}" class="btn" title="צפייה ותגובה לתגובות">💬 תגובות ({{ v.get('comments', [])|length }})</a>
+                    <a href="{{ url_for('studio_analytics', vid_id=v.id) }}" class="btn btn-accent" title="נתונים ואנליטיקה">📊 אנליטיקה</a>
+                    <form action="{{ url_for('delete_video', vid_id=v.id) }}" method="post" onsubmit="return confirm('האם אתה בטוח שברצונך למחוק סרטון זה?');">
+                        <button type="submit" class="btn btn-red" title="מחיקת הסרטון">🗑️ מחיקה</button>
                     </form>
                 </div>
             </div>
         {% else %}
-            <p class="card-meta">עדיין לא העלית סרטונים לערוץ.</p>
+            <div class="empty">
+                <p>עדיין לא העלית סרטונים לערוץ. לחץ על העלה סרטון חדש כדי להתחיל!</p>
+            </div>
         {% endfor %}
     </div>
     """
-    return render_page(html, active_nav="studio", user_info=user_info, my_videos=my_videos, total_views=total_views, total_subs=total_subs)
+    return render_page(html, active_nav="studio_content", my_videos=my_videos)
+
+@app.route("/studio/analytics/<vid_id>")
+def studio_analytics(vid_id):
+    if not session.get("user"):
+        return redirect(url_for("auth"))
+    data = load_data()
+    u = session["user"]
+    video = next((v for v in data["videos"] if v["id"] == vid_id and v["owner"] == u), None)
+    if not video:
+        return redirect(url_for("studio_content"))
+
+    # Calculate average watch time estimate based on views
+    views = video.get("views", 0)
+    avg_watch_secs = min(views * 14, 180) # Estimated simulated average watch time
+    subscribers_gained = len([uname for uname, uinf in data["users"].items() if u in uinf.get("subscribers", [])])
+    
+    html = """
+    <div style="max-width:850px; margin:0 auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+            <h2>📊 אנליטיקה ונתוני סרטון: {{ video.title }}</h2>
+            <a href="{{ url_for('studio_content') }}" class="btn">חזרה לתוכן</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-val">{{ views }}</div>
+                <div>סה״כ צפיות בסרטון</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val">{{ avg_watch_secs }} שניות</div>
+                <div>ממוצע זמן צפייה (משוער)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val">{{ video.get('likes', [])|length }}</div>
+                <div>כמות לייקים</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val">{{ video.get('comments', [])|length }}</div>
+                <div>כמות תגובות</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val">{{ subscribers_gained }}</div>
+                <div>מנויים כוללים בערוץ</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val">{{ video.get('saves', [])|length }}</div>
+                <div>שמירות לסרטונים שמורים</div>
+            </div>
+        </div>
+    </div>
+    """
+    return render_page(html, active_nav="studio_content", video=video, views=views, avg_watch_secs=avg_watch_secs, subscribers_gained=subscribers_gained)
 
 @app.route("/studio/comments/<vid_id>")
 def studio_comments(vid_id):
@@ -1877,13 +2112,13 @@ def studio_comments(vid_id):
     u = session["user"]
     video = next((v for v in data["videos"] if v["id"] == vid_id and v["owner"] == u), None)
     if not video:
-        return redirect(url_for("studio"))
+        return redirect(url_for("studio_content"))
 
     html = """
     <div style="max-width:850px; margin:0 auto;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
             <h2>💬 תגובות על הסרטון: {{ video.title }}</h2>
-            <a href="{{ url_for('studio') }}" class="btn">חזרה לסטודיו</a>
+            <a href="{{ url_for('studio_content') }}" class="btn">חזרה לתוכן</a>
         </div>
 
         <form class="comment-form" action="{{ url_for('comment_video', vid_id=video.id) }}" method="post">
@@ -1941,7 +2176,7 @@ def studio_comments(vid_id):
         {% endif %}
     </div>
     """
-    return render_page(html, active_nav="studio", video=video)
+    return render_page(html, active_nav="studio_content", video=video)
 
 @app.route("/edit_video/<vid_id>", methods=["GET", "POST"])
 def edit_video(vid_id):
@@ -1951,7 +2186,7 @@ def edit_video(vid_id):
     u = session["user"]
     video = next((v for v in data["videos"] if v["id"] == vid_id and v["owner"] == u), None)
     if not video:
-        return redirect(url_for("studio"))
+        return redirect(url_for("studio_content"))
 
     error = ""
     if request.method == "POST":
@@ -1972,7 +2207,7 @@ def edit_video(vid_id):
                 video["thumb_file"] = thumb_name
 
             save_data(data)
-            return redirect(url_for("studio"))
+            return redirect(url_for("studio_content"))
 
     html = """
     <div class="box">
@@ -1999,12 +2234,12 @@ def edit_video(vid_id):
             </div>
             <div style="display:flex; gap:10px; margin-top:16px;">
                 <button type="submit" class="btn btn-accent" style="flex:1; justify-content:center; padding:12px;">💾 שמור שינויים</button>
-                <a href="{{ url_for('studio') }}" class="btn" style="justify-content:center; padding:12px;">ביטול</a>
+                <a href="{{ url_for('studio_content') }}" class="btn" style="justify-content:center; padding:12px;">ביטול</a>
             </div>
         </form>
     </div>
     """
-    return render_page(html, active_nav="studio", video=video, error=error)
+    return render_page(html, active_nav="studio_content", video=video, error=error)
 
 @app.route("/delete_video/<vid_id>", methods=["POST"])
 def delete_video(vid_id):
@@ -2033,7 +2268,7 @@ def delete_video(vid_id):
 
             data["videos"] = [v for v in data["videos"] if v["id"] != vid_id]
             save_data(data)
-    return redirect(url_for("studio"))
+    return redirect(url_for("studio_content"))
 
 @app.route("/subscriptions")
 def subscriptions():
@@ -2167,7 +2402,6 @@ def subscriptions_feed():
             {% endif %}
         {% endfor %}
     {% endif %}
-
     """
     return render_page(html, active_nav="subs_feed", feed_sections=feed_sections)
 
