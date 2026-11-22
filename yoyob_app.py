@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.secret_key = "yoyob_super_secret_key_change_me"
 
 # Cloudinary Configuration
-CLOUDINARY_CLOUD_NAME = "demo"  # Replace with actual Cloud Name if provided
+CLOUDINARY_CLOUD_NAME = "tgu8n7hi"  # Replace with actual Cloud Name if provided
 CLOUDINARY_UPLOAD_PRESET = "yoyob_preset"  # Replace with actual upload preset if provided
 
 DATA_FILE = "yoyob_data.json"
