@@ -107,6 +107,10 @@ def load_data():
                 data = json.load(f)
                 changed = False
                 for v in data.get("videos", []):
+                    # מוודא ששדה הצפיות קיים לכל סרטון
+                    if "views" not in v:
+                        v["views"] = 0
+                        changed = True
                     for c in v.get("comments", []):
                         if "id" not in c:
                             c["id"] = str(uuid.uuid4())
@@ -138,6 +142,9 @@ def migrate_thumbnails():
             data = json.load(f)
         changed = False
         for v in data.get("videos", []):
+            if "views" not in v:
+                v["views"] = 0
+                changed = True
             if not v.get("thumb_file") and v.get("web_file") and not v["web_file"].startswith("http"):
                 v_path = v.get("file_path") or os.path.join(UPLOAD_FOLDER, v.get("web_file", ""))
                 if os.path.exists(v_path):
@@ -1137,6 +1144,7 @@ def watch(vid_id):
     if not video:
         return redirect(url_for("index"))
 
+    # סופר צפייה בכל כניסה לעמוד הצפייה ושומר מיד לקובץ הנתונים
     video["views"] = video.get("views", 0) + 1
     save_data(data)
 
@@ -1564,7 +1572,7 @@ def upload():
                     {% endfor %}
                 </select>
             </div>
-                        <div id="uploadProgressWrap" style="display:none; margin-bottom:16px; background:#101010; padding:12px; border-radius:10px; border:1px solid #303030;">
+            <div id="uploadProgressWrap" style="display:none; margin-bottom:16px; background:#101010; padding:12px; border-radius:10px; border:1px solid #303030;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px; font-weight:bold;">
                     <span id="uploadStatus" style="color:#3ea6ff;">⏳ מעלה סרטון לענן...</span>
                     <span id="uploadPercent" style="color:#f1f1f1;">0%</span>
