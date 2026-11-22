@@ -14,7 +14,7 @@ CLOUDINARY_CLOUD_NAME = "tgu8n7hi"
 CLOUDINARY_UPLOAD_PRESET = "yoyob_preset"
 
 # MongoDB Configuration
-MONGO_URI = "mongodb+srv://ttt293896_db_user:FA0aAIgeH89dhg70@cluster0.gcvvb1f.mongodb.net/?retryWrites=true&w=majority&tlsAllowInvalidCertificates=true"
+MONGO_URI = "mongodb+srv://ttt293896_db_user:FA0aAIgeH89dhg70@cluster0.gcvvb1f.mongodb.net/yoyob_database?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true"
 client = MongoClient(MONGO_URI)
 db = client["yoyob_database"]
 collection = db["yoyob_collection"]
