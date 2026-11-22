@@ -20,7 +20,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 LANGUAGES = {
     "עברית": {
         "dir": "rtl", "country": "ישראל", "search": "חיפוש", "create": "＋ יצירה",
-        "home": "דף הבית", "yobshort": "Yobshort", "no_shorts": "אין עדיין סרטוני Yobshort. העלה סרטון וסמן אותו כ-Yobshort!", "studio": "Yoyob Studio", "content": "תוכן", "subscriptions": "מינויים", "subs_feed": "פיד מינויים", "subs_count": "מנויים", "no_subs": "עדיין לא נרשמת לאף ערוץ.",
+        "home": "דף הבית", "yobshort": "Yobshort", "no_shorts": "אין עדיין סרטוני Yobshort. העלה סרטון וסמן אותו ك-Yobshort!", "studio": "Yoyob Studio", "content": "תוכן", "subscriptions": "מינויים", "subs_feed": "פיד מינויים", "subs_count": "מנויים", "no_subs": "עדיין לא נרשמת לאף ערוץ.",
         "liked": "סרטונים שאהבתי", "saved": "סרטונים שמורים", "settings": "הגדרות שפה", "login": "התחברות",
         "register": "הרשמה", "logout": "התנתקות",
         "no_videos": "אין עדיין סרטונים בפיד. התחבר ולחץ על '＋ יצירה' כדי להעלות את הסרטון הראשון!",
@@ -184,9 +184,6 @@ def get_notifications(data, username):
         return []
     
     user_info = data["users"][username]
-    subs = user_info.get("subscribers", []) # channels this user is subscribed to
-    # Wait, in the schema: user_info['subscribers'] holds users subscribed *to* this user.
-    # To find who *this* user is subscribed to:
     my_subs = [uname for uname, uinf in data["users"].items() if username in uinf.get("subscribers", [])]
     
     notifications = []
@@ -204,7 +201,6 @@ def get_notifications(data, username):
 
     # 2. Replies to user's comments or comments on user's videos
     for v in data["videos"]:
-        # If user owns the video, any new comment is a notification
         if v["owner"] == username:
             for c in v.get("comments", []):
                 if c["user"] != username:
@@ -215,7 +211,6 @@ def get_notifications(data, username):
                         "link": url_for('studio_comments', vid_id=v['id']),
                         "time": 0
                     })
-        # Check replies in comments
         for c in v.get("comments", []):
             if c["user"] == username:
                 for r in c.get("replies", []):
@@ -480,7 +475,7 @@ HTML_BASE = """
         {% if current_user %}
             {% for uname, uinfo in data.users.items() %}
                 {% if current_user in uinfo.get('subscribers', []) %}
-                    <a href="{{ url_for('index', channel=uname) }}" class="nav-item">● &nbsp; {{ uinfo.channel_name }}</a>
+                    <a href="{{ url_for('channel_profile', channel_name=uname) }}" class="nav-item">● &nbsp; {{ uinfo.channel_name }}</a>
                 {% endif %}
             {% endfor %}
         {% endif %}
@@ -519,11 +514,8 @@ def index():
 
     cat_idx = request.args.get("cat", type=int, default=0)
     q = request.args.get("q", "").strip().lower()
-    channel = request.args.get("channel", "")
 
-    if channel:
-        all_vids = [v for v in all_vids if v["owner"] == channel]
-    elif 0 < cat_idx < len(t["cats"]):
+    if 0 < cat_idx < len(t["cats"]):
         chosen_cat = t["cats"][cat_idx]
         all_vids = [v for v in all_vids if v.get("category") == chosen_cat or v.get("cat_idx") == cat_idx]
 
@@ -554,8 +546,8 @@ def index():
                     {% for v in sec['items'] %}
                         {% set owner = data.users.get(v.owner, {}) %}
                         {% set ch_name = owner.get('channel_name', v.owner) %}
-                        <a href="{{ url_for('watch', vid_id=v.id) }}" class="card">
-                            <div class="thumb" style="border-color: {{ v.get('thumb_color', '#333') }};">
+                        <div class="card">
+                            <div class="thumb" style="border-color: {{ v.get('thumb_color', '#333') }};" onclick="location.href='{{ url_for('watch', vid_id=v.id) }}'">
                                 {% if v.category %}<span class="thumb-cat">{{ v.category }}</span>{% endif %}
                                 {% if v.get('thumb_file') %}
                                     <img class="thumb-img" src="{{ url_for('uploaded_file', filename=v.thumb_file) }}" alt="{{ v.title }}">
@@ -566,19 +558,21 @@ def index():
                                 {% endif %}
                             </div>
                             <div class="card-info">
-                                <div class="avatar" style="background: {{ owner.get('avatar_color', '#16a085') }};">
+                                <a href="{{ url_for('channel_profile', channel_name=v.owner) }}" class="avatar" style="background: {{ owner.get('avatar_color', '#16a085') }}; display:inline-flex;">
                                     {% if owner.get('avatar_file') %}
                                         <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
                                     {% else %}
                                         {{ ch_name[0]|upper }}
                                     {% endif %}
-                                </div>
-                                <div>
-                                    <div class="card-title">{{ v.title }}</div>
-                                    <div class="card-meta">{{ ch_name }} • {{ v.get('views', 0) }} {{ t.views }}</div>
+                                </a>
+                                <div style="flex:1; min-width:0;">
+                                    <a href="{{ url_for('watch', vid_id=v.id) }}"><div class="card-title">{{ v.title }}</div></a>
+                                    <div class="card-meta">
+                                        <a href="{{ url_for('channel_profile', channel_name=v.owner) }}" style="color:inherit;">{{ ch_name }}</a> • {{ v.get('views', 0) }} {{ t.views }}
+                                    </div>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     {% endfor %}
                 </div>
             {% elif sec.type == 'shorts' %}
@@ -616,6 +610,160 @@ def index():
     {% endif %}
     """
     return render_page(html, active_nav="home", feed_sections=feed_sections, cat_idx=cat_idx)
+
+@app.route("/channel/<channel_name>")
+def channel_profile(channel_name):
+    data = load_data()
+    user_info = data["users"].get(channel_name)
+    if not user_info:
+        return redirect(url_for("index"))
+    
+    ch_videos = [v for v in reversed(data["videos"]) if v["owner"] == channel_name]
+    regular_vids = [v for v in ch_videos if not v.get("is_short")]
+    short_vids = [v for v in ch_videos if v.get("is_short")]
+    
+    total_views = sum(v.get("views", 0) for v in ch_videos)
+    subs_count = len(user_info.get("subscribers", []))
+    ch_name = user_info.get("channel_name", channel_name)
+    is_sub = current_user in user_info.get("subscribers", []) if current_user else False
+    
+    tab = request.args.get("tab", "videos") # 'videos' or 'shorts'
+
+    html = """
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <!-- Channel Header Banner / Info -->
+        <div style="background: #181818; padding: 28px; border-radius: 16px; display: flex; align-items: center; gap: 24px; border: 1px solid #2a2a2a; margin-bottom: 24px; flex-wrap: wrap;">
+            <div class="avatar" style="width: 96px; height: 96px; font-size: 38px; background: {{ user_info.get('avatar_color', '#16a085') }}; flex-shrink: 0;">
+                {% if user_info.get('avatar_file') %}
+                    <img src="{{ url_for('uploaded_file', filename=user_info.avatar_file) }}" alt="{{ ch_name }}">
+                {% else %}
+                    {{ ch_name[0]|upper }}
+                {% endif %}
+            </div>
+            <div style="flex: 1; min-width: 220px;">
+                <h1 style="font-size: 24px; margin-bottom: 6px;">@{{ ch_name }}</h1>
+                <div class="card-meta" style="font-size: 14px; margin-bottom: 8px;">
+                    <span id="profile-subs-count">{{ subs_count }}</span> {{ t.subs_count }} • {{ ch_videos|length }} סרטונים • {{ total_views }} סה״כ צפיות
+                </div>
+                {% if user_info.get('bio') %}
+                    <div style="font-size: 13px; color: #ccc; line-height: 1.4;">{{ user_info.bio }}</div>
+                {% endif %}
+            </div>
+            <div>
+                {% if current_user != channel_name %}
+                    <button type="button" id="profile-sub-btn" onclick="toggleChannelSub('{{ channel_name }}')" class="btn" style="background: {{ '#333' if is_sub else '#f1f1f1' }}; color: {{ '#fff' if is_sub else '#0f0f0f' }}; font-weight: bold; padding: 10px 20px; font-size: 14px;">
+                        <span id="profile-sub-text">{{ t.subscribed if is_sub else t.subscribe }}</span>
+                    </button>
+                {% else %}
+                    <a href="{{ url_for('studio') }}" class="btn btn-accent">⚙️ נהל ערוץ</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Channel Tabs Switcher -->
+        <div style="display: flex; gap: 12px; border-bottom: 1px solid #272727; margin-bottom: 24px; padding-bottom: 12px;">
+            <a href="{{ url_for('channel_profile', channel_name=channel_name, tab='videos') }}" class="btn {{ 'btn-accent' if tab == 'videos' else '' }}" style="border-radius: 8px;">
+                🎬 סרטונים ({{ regular_vids|length }})
+            </a>
+            <a href="{{ url_for('channel_profile', channel_name=channel_name, tab='shorts') }}" class="btn {{ 'btn-accent' if tab == 'shorts' else '' }}" style="border-radius: 8px;">
+                📱 Yobshorts ({{ short_vids|length }})
+            </a>
+        </div>
+
+        <!-- Tab Content -->
+        {% if tab == 'videos' %}
+            {% if not regular_vids %}
+                <div class="empty">
+                    <div style="font-size: 42px; margin-bottom: 10px;">🎬</div>
+                    <p>לערוץ זה אין עדיין סרטונים רגילים.</p>
+                </div>
+            {% else %}
+                <div class="grid">
+                    {% for v in regular_vids %}
+                        <a href="{{ url_for('watch', vid_id=v.id) }}" class="card">
+                            <div class="thumb" style="border-color: {{ v.get('thumb_color', '#333') }};">
+                                {% if v.category %}<span class="thumb-cat">{{ v.category }}</span>{% endif %}
+                                {% if v.get('thumb_file') %}
+                                    <img class="thumb-img" src="{{ url_for('uploaded_file', filename=v.thumb_file) }}" alt="{{ v.title }}">
+                                    <div class="thumb-overlay"><div class="thumb-play">▶</div></div>
+                                {% else %}
+                                    <video class="thumb-img" preload="metadata" muted playsinline style="object-fit:cover;"><source src="{{ url_for('uploaded_file', filename=v.get('web_file') or '') }}#t=0.5"></video>
+                                    <div class="thumb-overlay"><div class="thumb-play">▶</div></div>
+                                {% endif %}
+                            </div>
+                            <div class="card-info">
+                                <div>
+                                    <div class="card-title">{{ v.title }}</div>
+                                    <div class="card-meta">{{ v.get('views', 0) }} {{ t.views }}</div>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% elif tab == 'shorts' %}
+            {% if not short_vids %}
+                <div class="empty">
+                    <div style="font-size: 42px; margin-bottom: 10px;">📱</div>
+                    <p>לערוץ זה אין עדיין סרטוני Yobshort.</p>
+                </div>
+            {% else %}
+                <div class="shorts-shelf-grid">
+                    {% for sv in short_vids %}
+                        <a href="{{ url_for('yobshort', v=sv.id) }}" class="short-shelf-card">
+                            <div class="short-shelf-thumb" style="border-color: {{ sv.get('thumb_color', '#333') }};">
+                                {% if sv.get('thumb_file') %}
+                                    <img src="{{ url_for('uploaded_file', filename=sv.thumb_file) }}" alt="{{ sv.title }}">
+                                {% else %}
+                                    <video style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;" preload="auto" muted playsinline><source src="{{ url_for('uploaded_file', filename=sv.get('web_file') or '') }}#t=0.5"></video>
+                                    <div class="thumb-play" style="position:relative; z-index:2; margin-bottom: 24px;">▶</div>
+                                {% endif %}
+                                <div class="short-shelf-gradient">
+                                    <div class="short-shelf-card-title">{{ sv.title }}</div>
+                                    <div class="short-shelf-card-meta">{{ sv.get('views', 0) }} {{ t.views }}</div>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <script>
+        async function toggleChannelSub(ownerName) {
+            try {
+                const res = await fetch('/subscribe/' + ownerName + '/dummy', {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await res.json();
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+                if (data.ok) {
+                    const btn = document.getElementById('profile-sub-btn');
+                    const txt = document.getElementById('profile-sub-text');
+                    const cnt = document.getElementById('profile-subs-count');
+                    if (btn) {
+                        btn.style.background = data.subscribed ? '#333' : '#f1f1f1';
+                        btn.style.color = data.subscribed ? '#fff' : '#0f0f0f';
+                    }
+                    if (txt) {
+                        txt.textContent = data.subscribed ? '{{ t.subscribed }}' : '{{ t.subscribe }}';
+                    }
+                    if (cnt) {
+                        cnt.textContent = data.count;
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+    """
+    return render_page(html, active_nav="home", user_info=user_info, channel_name=channel_name, ch_videos=ch_videos, regular_vids=regular_vids, short_vids=short_vids, total_views=total_views, subs_count=subs_count, ch_name=ch_name, is_sub=is_sub, tab=tab)
 
 @app.route("/yobshort")
 def yobshort():
@@ -946,7 +1094,7 @@ def yobshort():
                                 <div class="short-bottom">
                                     <div class="short-info">
                                         <div class="short-channel-row">
-                                            <a href="{{ url_for('index', channel=v.owner) }}" class="short-channel">
+                                            <a href="{{ url_for('channel_profile', channel_name=v.owner) }}" class="short-channel">
                                                 <div class="avatar" style="width:34px; height:34px; font-size:14px; background: {{ owner.get('avatar_color', '#16a085') }};">
                                                     {% if owner.get('avatar_file') %}
                                                         <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
@@ -1352,15 +1500,15 @@ def watch(vid_id):
 
         <div class="watch-bar">
             <div style="display:flex; align-items:center; gap:12px;">
-                <div class="avatar" style="width:44px; height:44px; background: {{ owner.get('avatar_color', '#16a085') }};">
+                <a href="{{ url_for('channel_profile', channel_name=video.owner) }}" class="avatar" style="width:44px; height:44px; background: {{ owner.get('avatar_color', '#16a085') }}; display:inline-flex;">
                     {% if owner.get('avatar_file') %}
                         <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
                     {% else %}
                         {{ ch_name[0]|upper }}
                     {% endif %}
-                </div>
+                </a>
                 <div>
-                    <div style="font-weight:bold; font-size:15px;">{{ ch_name }}</div>
+                    <a href="{{ url_for('channel_profile', channel_name=video.owner) }}" style="font-weight:bold; font-size:15px; color:inherit;">{{ ch_name }}</a>
                     <div class="card-meta"><span id="sub-count-text">{{ owner.get('subscribers', [])|length }}</span> {{ t.subs_count }} • <span id="watch-view-count">{{ video.get('views', 0) }}</span> {{ t.views }}</div>
                 </div>
             </div>
@@ -1974,8 +2122,9 @@ def studio():
             <div class="stat-card"><div class="stat-val">{{ total_subs }}</div><div>מנויים בערוץ</div></div>
         </div>
 
-        <div style="margin: 20px 0; display: flex; gap: 12px;">
+        <div style="margin: 20px 0; display: flex; gap: 12px; flex-wrap: wrap;">
             <a href="{{ url_for('studio_content') }}" class="btn btn-accent" style="padding: 12px 20px; font-size: 15px;">📁 מעבר לניהול תוכן הסרטונים</a>
+            <a href="{{ url_for('channel_profile', channel_name=current_user) }}" class="btn" style="padding: 12px 20px; font-size: 15px;">👁️ צפה בערוץ שלך כגולש</a>
         </div>
 
         <div class="box" style="max-width:100%; margin:20px 0;">
@@ -2062,9 +2211,8 @@ def studio_analytics(vid_id):
     if not video:
         return redirect(url_for("studio_content"))
 
-    # Calculate average watch time estimate based on views
     views = video.get("views", 0)
-    avg_watch_secs = min(views * 14, 180) # Estimated simulated average watch time
+    avg_watch_secs = min(views * 14, 180)
     subscribers_gained = len([uname for uname, uinf in data["users"].items() if u in uinf.get("subscribers", [])])
     
     html = """
@@ -2296,7 +2444,7 @@ def subscriptions():
     {% else %}
         <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 24px;">
             {% for ch in subscribed_channels %}
-                <a href="{{ url_for('index', channel=ch.username) }}" class="card" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding: 8px;">
+                <a href="{{ url_for('channel_profile', channel_name=ch.username) }}" class="card" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding: 8px;">
                     <div class="avatar" style="width:96px; height:96px; font-size:34px; margin-bottom:10px; background: {{ ch.avatar_color }};">
                         {% if ch.avatar_file %}
                             <img src="{{ url_for('uploaded_file', filename=ch.avatar_file) }}" alt="{{ ch.channel_name }}">
@@ -2342,8 +2490,8 @@ def subscriptions_feed():
                     {% for v in sec['items'] %}
                         {% set owner = data.users.get(v.owner, {}) %}
                         {% set ch_name = owner.get('channel_name', v.owner) %}
-                        <a href="{{ url_for('watch', vid_id=v.id) }}" class="card">
-                            <div class="thumb" style="border-color: {{ v.get('thumb_color', '#333') }};">
+                        <div class="card">
+                            <div class="thumb" style="border-color: {{ v.get('thumb_color', '#333') }};" onclick="location.href='{{ url_for('watch', vid_id=v.id) }}'">
                                 {% if v.category %}<span class="thumb-cat">{{ v.category }}</span>{% endif %}
                                 {% if v.get('thumb_file') %}
                                     <img class="thumb-img" src="{{ url_for('uploaded_file', filename=v.thumb_file) }}" alt="{{ v.title }}">
@@ -2354,19 +2502,21 @@ def subscriptions_feed():
                                 {% endif %}
                             </div>
                             <div class="card-info">
-                                <div class="avatar" style="background: {{ owner.get('avatar_color', '#16a085') }};">
+                                <a href="{{ url_for('channel_profile', channel_name=v.owner) }}" class="avatar" style="background: {{ owner.get('avatar_color', '#16a085') }}; display:inline-flex;">
                                     {% if owner.get('avatar_file') %}
                                         <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
                                     {% else %}
                                         {{ ch_name[0]|upper }}
                                     {% endif %}
-                                </div>
-                                <div>
-                                    <div class="card-title">{{ v.title }}</div>
-                                    <div class="card-meta">{{ ch_name }} • {{ v.get('views', 0) }} {{ t.views }}</div>
+                                </a>
+                                <div style="flex:1; min-width:0;">
+                                    <a href="{{ url_for('watch', vid_id=v.id) }}"><div class="card-title">{{ v.title }}</div></a>
+                                    <div class="card-meta">
+                                        <a href="{{ url_for('channel_profile', channel_name=v.owner) }}" style="color:inherit;">{{ ch_name }}</a> • {{ v.get('views', 0) }} {{ t.views }}
+                                    </div>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     {% endfor %}
                 </div>
             {% elif sec.type == 'shorts' %}
