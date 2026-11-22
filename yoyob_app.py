@@ -1564,7 +1564,17 @@ def upload():
                     {% endfor %}
                 </select>
             </div>
-            <div id="uploadStatus" style="margin-bottom:12px; color:#3ea6ff; font-weight:bold; display:none;"></div>
+                        <div id="uploadProgressWrap" style="display:none; margin-bottom:16px; background:#101010; padding:12px; border-radius:10px; border:1px solid #303030;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px; font-weight:bold;">
+                    <span id="uploadStatus" style="color:#3ea6ff;">⏳ מעלה סרטון לענן...</span>
+                    <span id="uploadPercent" style="color:#f1f1f1;">0%</span>
+                </div>
+                <div style="width:100%; height:10px; background:#272727; border-radius:6px; overflow:hidden;">
+                    <div id="uploadBar" style="width:0%; height:100%; background:#3ea6ff; transition: width 0.2s ease;"></div>
+                </div>
+                <div id="uploadEta" style="margin-top:6px; font-size:12px; color:#aaa; text-align:left;">מחשב זמן נותר...</div>
+            </div>
+
             <button type="submit" id="submitBtn" class="btn btn-accent" style="width:100%; justify-content:center; padding:12px;">🚀 פרסם סרטון</button>
         </form>
     </div>
@@ -1573,47 +1583,103 @@ def upload():
         const CLOUD_NAME = "{{ cloud_name }}";
         const UPLOAD_PRESET = "{{ upload_preset }}";
 
-        async function uploadToCloudinary(file, resourceType) {
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("upload_preset", UPLOAD_PRESET);
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
-                method: "POST",
-                body: formData
+        function formatTime(seconds) {
+            if (!isFinite(seconds) || seconds < 0) return "מחשב...";
+            seconds = Math.round(seconds);
+            if (seconds < 60) return `כ-${seconds} שניות נותרו`;
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `כ-${mins} דקות ו-${secs} שניות נותרו`;
+        }
+
+        function uploadToCloudinary(file, resourceType, onProgress) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("upload_preset", UPLOAD_PRESET);
+
+                const startTime = Date.now();
+
+                xhr.upload.addEventListener("progress", (e) => {
+                    if (e.lengthComputable && onProgress) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        const elapsedSec = (Date.now() - startTime) / 1000;
+                        const speed = elapsedSec > 0 ? e.loaded / elapsedSec : 0;
+                        const remainingBytes = e.total - e.loaded;
+                        const etaSec = speed > 0 ? remainingBytes / speed : 0;
+                        onProgress(percent, etaSec);
+                    }
+                });
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                resolve(data.secure_url);
+                            } else {
+                                reject(new Error(data.error?.message || "Upload failed"));
+                            }
+                        } catch (err) {
+                            reject(new Error("שגיאה בתגובת השרת"));
+                        }
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error("שגיאת רשת בהעלאה"));
+                xhr.open("POST", `https://cloudinary.com{CLOUD_NAME}/${resourceType}/upload`);
+                xhr.send(formData);
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error?.message || "Upload failed");
-            return data.secure_url;
         }
 
         document.getElementById("uploadForm").addEventListener("submit", async function(e) {
             e.preventDefault();
             const videoFile = document.getElementById("video_file").files[0];
             const thumbFile = document.getElementById("thumb_file").files[0];
+
+            const wrapEl = document.getElementById("uploadProgressWrap");
             const statusEl = document.getElementById("uploadStatus");
+            const percentEl = document.getElementById("uploadPercent");
+            const barEl = document.getElementById("uploadBar");
+            const etaEl = document.getElementById("uploadEta");
             const btn = document.getElementById("submitBtn");
 
             if (!videoFile) return;
             btn.disabled = true;
-            statusEl.style.display = "block";
-            statusEl.textContent = "⏳ מעלה סרטון לענן... נא לא לסגור את הדף";
+            wrapEl.style.display = "block";
+            statusEl.textContent = "⏳ מעלה סרטון לענן...";
 
             try {
-                const vidUrl = await uploadToCloudinary(videoFile, "video");
+                const vidUrl = await uploadToCloudinary(videoFile, "video", (pct, eta) => {
+                    percentEl.textContent = pct + "%";
+                    barEl.style.width = pct + "%";
+                    etaEl.textContent = pct < 100 ? formatTime(eta) : "מעבד סרטון בענן...";
+                });
                 document.getElementById("video_url").value = vidUrl;
 
                 if (thumbFile) {
                     statusEl.textContent = "⏳ מעלה תמונה ממוזערת...";
-                    const thUrl = await uploadToCloudinary(thumbFile, "image");
+                    percentEl.textContent = "0%";
+                    barEl.style.width = "0%";
+                    const thUrl = await uploadToCloudinary(thumbFile, "image", (pct, eta) => {
+                        percentEl.textContent = pct + "%";
+                        barEl.style.width = pct + "%";
+                        etaEl.textContent = formatTime(eta);
+                    });
                     document.getElementById("thumb_url").value = thUrl;
                 }
 
                 statusEl.textContent = "✅ ההעלאה הושלמה! מפרסם...";
+                percentEl.textContent = "100%";
+                barEl.style.width = "100%";
+                barEl.style.background = "#2ecc71";
+                etaEl.textContent = "מוכן!";
                 this.submit();
             } catch (err) {
                 alert("שגיאה בהעלאה: " + err.message);
                 btn.disabled = false;
-                statusEl.style.display = "none";
+                wrapEl.style.display = "none";
             }
         });
     </script>
