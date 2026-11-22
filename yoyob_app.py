@@ -1628,7 +1628,7 @@ def upload():
                 };
 
                 xhr.onerror = () => reject(new Error("שגיאת רשת בהעלאה"));
-                xhr.open("POST", `https://cloudinary.com{CLOUD_NAME}/${resourceType}/upload`);
+                xhr.open("POST", "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/" + resourceType + "/upload");
                 xhr.send(formData);
             });
         }
