@@ -1,3 +1,5 @@
-Flask
-Werkzeug
-opencv-python-headless
+flask
+pymongo
+dnspython
+opencv-python
+werkzeug
