@@ -6,6 +6,12 @@ from werkzeug.utils import secure_filename
 import cv2
 
 app = Flask(__name__)
+from flask import send_file
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_file('logo.png', mimetype='image/png')
+
 app.secret_key = "yoyob_super_secret_key_change_me"
 
 # Cloudinary Configuration
