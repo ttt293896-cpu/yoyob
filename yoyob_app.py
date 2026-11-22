@@ -37,66 +37,6 @@ LANGUAGES = {
         "like": "Like", "save": "Save", "subscribe": "Subscribe", "subscribed": "Subscribed",
         "comments": "Comments", "add_comment": "Add a comment...", "send": "Post",
         "views": "views", "cats": ["All", "Gaming", "Music", "Coding", "Comedy", "Vlogs", "Education"]
-    },
-    "Deutsch": {
-        "dir": "ltr", "country": "Deutschland", "search": "Suchen", "create": "＋ Erstellen",
-        "home": "Startseite", "yobshort": "Yobshort", "no_shorts": "Noch keine Yobshort-Videos vorhanden.", "studio": "Yoyob Studio", "content": "Inhalt", "subscriptions": "Abos", "subs_feed": "Abo-Feed", "subs_count": "Abonnenten", "no_subs": "Du hast noch keine Kanäle abonniert.",
-        "liked": "Videos, die ich mag", "saved": "Gespeicherte Videos", "settings": "Spracheinstellungen", "login": "Anmelden",
-        "register": "Registrieren", "logout": "Abmelden",
-        "no_videos": "Noch keine Videos vorhanden.",
-        "like": "Gefällt mir", "save": "Speichern", "subscribe": "Abonnieren", "subscribed": "Abonniert",
-        "comments": "Kommentare", "add_comment": "Kommentar hinzufügen...", "send": "Senden",
-        "views": "Aufrufe", "cats": ["Alle", "Gaming", "Musik", "Programmieren", "Komödie", "Vlogs", "Bildung"]
-    },
-    "Français": {
-        "dir": "ltr", "country": "France", "search": "Rechercher", "create": "＋ Créer",
-        "home": "Accueil", "yobshort": "Yobshort", "no_shorts": "Aucune vidéo Yobshort pour le moment.", "studio": "Yoyob Studio", "content": "Contenu", "subscriptions": "Abonnements", "subs_feed": "Flux d'abonnements", "subs_count": "abonnés", "no_subs": "Vous n'êtes abonné à aucune chaîne.",
-        "liked": "Vidéos aimées", "saved": "Vidéos enregistrées", "settings": "Paramètres de langue", "login": "Connexion",
-        "register": "S'inscrire", "logout": "Déconnexion",
-        "no_videos": "Aucune vidéo.",
-        "like": "J'aime", "save": "Enregistrer", "subscribe": "S'abonner", "subscribed": "Abonné",
-        "comments": "Commentaires", "add_comment": "Ajouter un commentaire...", "send": "Publier",
-        "views": "vues", "cats": ["Tout", "Jeux vidéo", "Musique", "Code", "Comédie", "Vlogs", "Éducation"]
-    },
-    "Español": {
-        "dir": "ltr", "country": "España", "search": "Buscar", "create": "＋ Crear",
-        "home": "Inicio", "yobshort": "Yobshort", "no_shorts": "Aún no hay videos en Yobshort.", "studio": "Yoyob Studio", "content": "Contenido", "subscriptions": "Suscripciones", "subs_feed": "Feed de suscripciones", "subs_count": "suscriptores", "no_subs": "Aún no te has suscrito a ningún canal.",
-        "liked": "Videos que me gustan", "saved": "Videos guardados", "settings": "Idioma", "login": "Iniciar sesión",
-        "register": "Registrarse", "logout": "Cerrar sesión",
-        "no_videos": "Aún no hay videos.",
-        "like": "Me gusta", "save": "Guardar", "subscribe": "Suscribirse", "subscribed": "Suscrito",
-        "comments": "Comentarios", "add_comment": "Añadir un comentario...", "send": "Publicar",
-        "views": "vistas", "cats": ["Todo", "Juegos", "Música", "Programación", "Comedia", "Vlogs", "Educación"]
-    },
-    "Русский": {
-        "dir": "ltr", "country": "Россия", "search": "Поиск", "create": "＋ Создать",
-        "home": "Главная", "yobshort": "Yobshort", "no_shorts": "Видео Yobshort пока нет.", "studio": "Yoyob Studio", "content": "Контент", "subscriptions": "Подписки", "subs_feed": "Фид подписок", "subs_count": "подписчиков", "no_subs": "Вы ещё не подписаны ни на один канал.",
-        "liked": "Понравившиеся", "saved": "Сохраненные", "settings": "Настройки языка", "login": "Войти",
-        "register": "Регистрация", "logout": "Выйти",
-        "no_videos": "Видео пока нет.",
-        "like": "Нравится", "save": "Сохранить", "subscribe": "Подписаться", "subscribed": "Вы подписаны",
-        "comments": "Комментарии", "add_comment": "Оставьте комментарий...", "send": "Отправить",
-        "views": "просмотров", "cats": ["Все", "Игры", "Музыка", "Код", "Юмор", "Влоги", "Обучение"]
-    },
-    "العربية": {
-        "dir": "rtl", "country": "العالم العربي", "search": "بحث", "create": "＋ إنشاء",
-        "home": "الرئيسية", "yobshort": "Yobshort", "no_shorts": "لا توجد فيديوهات Yobshort بعد.", "studio": "استوديو Yoyob", "content": "المحتوى", "subscriptions": "الاشتراكات", "subs_feed": "خلاصة الاشتراكات", "subs_count": "مشترك", "no_subs": "لم تشترك في أي قناة بعد.",
-        "liked": "فيديوهات أعجبتني", "saved": "الفيديوهات المحفوظة", "settings": "إعدادات اللغة", "login": "تسجيل الدخول",
-        "register": "إنشاء حساب", "logout": "تسجيل الخروج",
-        "no_videos": "لا توجد فيديوهات.",
-        "like": "إعجاب", "save": "حفظ", "subscribe": "اشتراك", "subscribed": "مشترك",
-        "comments": "التعليقات", "add_comment": "أضف تعليقاً...", "send": "إرسال",
-        "views": "مشاهدة", "cats": ["الكل", "ألعاب", "موسيقى", "برمجة", "كوميديا", "فلوقات", "تعليم"]
-    },
-    "日本語": {
-        "dir": "ltr", "country": "日本", "search": "検索", "create": "＋ 作成",
-        "home": "ホーム", "yobshort": "Yobshort", "no_shorts": "Yobshort動画はまだありません。", "studio": "Yoyob Studio", "content": "コンテンツ", "subscriptions": "登録チャンネル", "subs_feed": "登録チャンネルフィード", "subs_count": "人の登録者", "no_subs": "まだどのチャンネルにも登録していません。",
-        "liked": "高く評価した動画", "saved": "保存済み動画", "settings": "言語設定", "login": "ログイン",
-        "register": "新規登録", "logout": "ログアウト",
-        "no_videos": "まだ動画がありません。",
-        "like": "高評価", "save": "保存", "subscribe": "チャンネル登録", "subscribed": "登録済み",
-        "comments": "コメント", "add_comment": "コメントを追加...", "send": "投稿",
-        "views": "回視聴", "cats": ["すべて", "ゲーム", "音楽", "プログラミング", "コメディ", "ブログ", "教育"]
     }
 }
 
@@ -299,7 +239,7 @@ HTML_BASE = """
 
         .layout { display: flex; min-height: calc(100vh - 64px); }
         aside { width: 220px; background: #0f0f0f; padding: 12px; border-inline-end: 1px solid #222; flex-shrink: 0; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; margin-bottom: 4px; font-size: 14px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; margin-bottom: 4px; font-size: 14px; cursor: pointer; }
         .nav-item:hover, .nav-item.active { background: #272727; font-weight: bold; }
         .divider { height: 1px; background: #2c2c2c; margin: 12px 0; }
 
@@ -339,7 +279,7 @@ HTML_BASE = """
         .thumb-cat { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.75); color: #3ea6ff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; z-index: 3; }
 
         .card-info { display: flex; gap: 10px; margin-top: 10px; }
-        .avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; flex-shrink: 0; overflow: hidden; }
+        .avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; flex-shrink: 0; overflow: hidden; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .card-title { font-weight: bold; font-size: 15px; margin-bottom: 4px; line-height: 1.3; }
         .card-meta { color: #aaa; font-size: 12px; }
@@ -353,7 +293,7 @@ HTML_BASE = """
         .comment-form { display: flex; gap: 10px; margin: 16px 0; }
         .comment-form input { flex: 1; background: #181818; border: 1px solid #303030; color: #f1f1f1; padding: 10px 14px; border-radius: 10px; }
         .comment-item { background: #181818; padding: 12px 14px; border-radius: 10px; margin-bottom: 10px; }
-        .comment-author { color: #3ea6ff; font-weight: bold; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .comment-author { color: #3ea6ff; font-weight: bold; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
         .creator-badge { background: #3ea6ff; color: #0f0f0f; font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: bold; }
         .comment-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
         .reply-box { display: none; margin-top: 10px; gap: 8px; }
@@ -379,6 +319,13 @@ HTML_BASE = """
         .empty { text-align: center; padding: 80px 20px; color: #aaa; }
         .alert { background: #c0392b; color: white; padding: 10px 16px; border-radius: 8px; margin-bottom: 16px; text-align: center; }
 
+        /* Modal Overlay for Channel Popup */
+        .channel-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .channel-modal-overlay.open { display: flex; }
+        .channel-modal-content { background: #181818; border: 1px solid #333; border-radius: 20px; width: 100%; max-width: 850px; max-height: 90vh; overflow-y: auto; padding: 24px; position: relative; box-shadow: 0 16px 40px rgba(0,0,0,0.9); }
+        .channel-modal-close { position: absolute; top: 16px; left: 16px; background: #2a2a2a; border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .channel-modal-close:hover { background: #444; }
+
         @media (max-width: 768px) {
             aside { display: none; }
             .search-bar { width: 40%; }
@@ -398,6 +345,26 @@ HTML_BASE = """
         function toggleNotifications() {
             var box = document.getElementById('notifDropdown');
             if (box) box.classList.toggle('open');
+        }
+
+        // Open/Close Channel Popup Modal
+        async function openChannelModal(username) {
+            const overlay = document.getElementById('channelModalOverlay');
+            const inner = document.getElementById('channelModalInner');
+            inner.innerHTML = '<div style="text-align:center; padding:40px; color:#aaa;">טוען ערוץ...</div>';
+            overlay.classList.add('open');
+
+            try {
+                const res = await fetch('/api/channel_modal/' + username);
+                const html = await res.text();
+                inner.innerHTML = html;
+            } catch (e) {
+                inner.innerHTML = '<div style="text-align:center; color:#ff3333; padding:40px;">שגיאה בטעינת ערוץ זה.</div>';
+            }
+        }
+
+        function closeChannelModal() {
+            document.getElementById('channelModalOverlay').classList.remove('open');
         }
     </script>
 </head>
@@ -439,9 +406,9 @@ HTML_BASE = """
         <a href="{{ url_for('upload') }}" class="btn">{{ t.create }}</a>
         {% if current_user %}
             {% set u = data.users[current_user] %}
-            <a href="{{ url_for('studio') }}" class="btn" style="background: {{ u.avatar_color }}; color: white;">
+            <button type="button" class="btn" onclick="openChannelModal('{{ current_user }}')" style="background: {{ u.avatar_color }}; color: white;">
                 👤 {{ u.channel_name }}
-            </a>
+            </button>
             <a href="{{ url_for('logout') }}" class="btn btn-red">{{ t.logout }}</a>
         {% else %}
             <a href="{{ url_for('auth') }}" class="btn btn-accent">👤 {{ t.login }}</a>
@@ -465,7 +432,7 @@ HTML_BASE = """
         {% if current_user %}
             {% for uname, uinfo in data.users.items() %}
                 {% if current_user in uinfo.get('subscribers', []) %}
-                    <a href="{{ url_for('channel_page', channel_name=uname) }}" class="nav-item">● &nbsp; {{ uinfo.channel_name }}</a>
+                    <div class="nav-item" onclick="openChannelModal('{{ uname }}')">● &nbsp; {{ uinfo.channel_name }}</div>
                 {% endif %}
             {% endfor %}
         {% endif %}
@@ -474,6 +441,14 @@ HTML_BASE = """
     <main>
         {{ content | safe }}
     </main>
+</div>
+
+<!-- Global Channel Modal Popup -->
+<div class="channel-modal-overlay" id="channelModalOverlay" onclick="if(event.target === this) closeChannelModal();">
+    <div class="channel-modal-content">
+        <button type="button" class="channel-modal-close" onclick="closeChannelModal()">✕</button>
+        <div id="channelModalInner"></div>
+    </div>
 </div>
 
 </body>
@@ -507,10 +482,11 @@ def index():
     channel = request.args.get("channel", "")
 
     if channel:
-        return redirect(url_for('channel_page', channel_name=channel))
+        # If any old channel links are used, open the modal via JS or fallback
+        pass
     elif 0 < cat_idx < len(t["cats"]):
         chosen_cat = t["cats"][cat_idx]
-        all_vids = [v for v in all_vids if v.get("category") == chosen_cat or v.get("cat_idx") == cat_idx]
+        all_vids = [v for v in all_vids if v.get("category"] == chosen_cat or v.get("cat_idx") == cat_idx]
 
     if q:
         all_vids = [v for v in all_vids if q in v["title"].lower() or q in v.get("description", "").lower() or q in v["owner"].lower()]
@@ -553,19 +529,17 @@ def index():
                                 </div>
                             </a>
                             <div class="card-info">
-                                <a href="{{ url_for('channel_page', channel_name=v.owner) }}">
-                                    <div class="avatar" style="background: {{ owner.get('avatar_color', '#16a085') }};">
-                                        {% if owner.get('avatar_file') %}
-                                            <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
-                                        {% else %}
-                                            {{ ch_name[0]|upper }}
-                                        {% endif %}
-                                    </div>
-                                </a>
+                                <div class="avatar" onclick="openChannelModal('{{ v.owner }}')" style="background: {{ owner.get('avatar_color', '#16a085') }};">
+                                    {% if owner.get('avatar_file') %}
+                                        <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
+                                    {% else %}
+                                        {{ ch_name[0]|upper }}
+                                    {% endif %}
+                                </div>
                                 <div>
                                     <a href="{{ url_for('watch', vid_id=v.id) }}"><div class="card-title">{{ v.title }}</div></a>
                                     <div class="card-meta">
-                                        <a href="{{ url_for('channel_page', channel_name=v.owner) }}">{{ ch_name }}</a> • {{ v.get('views', 0) }} {{ t.views }}
+                                        <span onclick="openChannelModal('{{ v.owner }}')" style="cursor: pointer; color: #aaa;">{{ ch_name }}</span> • {{ v.get('views', 0) }} {{ t.views }}
                                     </div>
                                 </div>
                             </div>
@@ -608,13 +582,13 @@ def index():
     """
     return render_page(html, active_nav="home", feed_sections=feed_sections, cat_idx=cat_idx)
 
-@app.route("/channel/<channel_name>")
-def channel_page(channel_name):
+@app.route("/api/channel_modal/<channel_name>")
+def channel_modal_api(channel_name):
     data = load_data()
     _, t = get_lang()
     user_info = data["users"].get(channel_name)
     if not user_info:
-        return redirect(url_for("index"))
+        return "<div style='padding:20px; text-align:center;'>הערוץ אינו נמצא.</div>"
 
     ch_name = user_info.get("channel_name", channel_name)
     ch_videos = [v for v in reversed(data["videos"]) if v["owner"] == channel_name]
@@ -622,15 +596,13 @@ def channel_page(channel_name):
     subs_count = len(user_info.get("subscribers", []))
     is_sub = session.get("user") in user_info.get("subscribers", [])
 
-    html = """
-    <div style="max-width: 1000px; margin: 0 auto;">
-        <!-- Banner / Header background -->
-        <div style="width: 100%; height: 180px; background: linear-gradient(135deg, #222, #111); border-radius: 16px; border: 1px solid #2d2d2d; position: relative;"></div>
+    return render_template_string("""
+    <div style="width: 100%;">
+        <div style="width: 100%; height: 140px; background: linear-gradient(135deg, #222, #111); border-radius: 12px; border: 1px solid #2d2d2d; position: relative;"></div>
 
-        <!-- Channel Info Section (matching requested look) -->
-        <div style="display: flex; align-items: flex-start; justify-content: space-between; padding: 20px 10px; gap: 20px; flex-wrap: wrap; margin-top: -50px; position: relative; z-index: 2;">
-            <div style="display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap;">
-                <div class="avatar" style="width: 120px; height: 120px; border-radius: 50%; font-size: 48px; border: 4px solid #0f0f0f; background: {{ user_info.get('avatar_color', '#16a085') }}; box-shadow: 0 4px 14px rgba(0,0,0,0.6);">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 4px; gap: 16px; flex-wrap: wrap; margin-top: -45px; position: relative; z-index: 2;">
+            <div style="display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap;">
+                <div class="avatar" style="width: 100px; height: 100px; border-radius: 50%; font-size: 40px; border: 4px solid #181818; background: {{ user_info.get('avatar_color', '#16a085') }}; box-shadow: 0 4px 14px rgba(0,0,0,0.6);">
                     {% if user_info.get('avatar_file') %}
                         <img src="{{ url_for('uploaded_file', filename=user_info.avatar_file) }}" alt="{{ ch_name }}">
                     {% else %}
@@ -638,9 +610,9 @@ def channel_page(channel_name):
                     {% endif %}
                 </div>
                 <div>
-                    <h1 style="font-size: 26px; font-weight: bold; margin-bottom: 4px;">{{ ch_name }}</h1>
-                    <div class="card-meta" style="font-size: 14px; color: #aaa; margin-bottom: 6px;">
-                        @{{ channel_name }} &bull; <strong style="color: #f1f1f1;">{{ subs_count }}</strong> {{ t.subs_count }} &bull; <strong style="color: #f1f1f1;">{{ total_views }}</strong> {{ t.views }} בכלל הסרטונים
+                    <h2 style="font-size: 22px; font-weight: bold; margin-bottom: 4px;">{{ ch_name }}</h2>
+                    <div class="card-meta" style="font-size: 13px; color: #aaa; margin-bottom: 4px;">
+                        @{{ channel_name }} &bull; <strong style="color: #f1f1f1;">{{ subs_count }}</strong> {{ t.subs_count }} &bull; <strong style="color: #f1f1f1;">{{ total_views }}</strong> {{ t.views }} בערוץ
                     </div>
                     <div style="font-size: 13px; color: #ccc;">{{ user_info.get('bio', '') }}</div>
                 </div>
@@ -648,27 +620,27 @@ def channel_page(channel_name):
 
             <div>
                 {% if current_user and current_user != channel_name %}
-                    <button type="button" id="channel-sub-btn" onclick="asyncAction('{{ url_for('subscribe_channel', owner_name=channel_name, vid_id='none') }}', handleChannelSubRes)" class="btn" style="background: {{ '#333' if is_sub else '#f1f1f1' }}; color: {{ '#fff' if is_sub else '#0f0f0f' }}; padding: 10px 20px; font-size: 14px; font-weight: bold;">
-                        <span id="channel-sub-txt">{{ t.subscribed if is_sub else t.subscribe }}</span>
+                    <button type="button" id="modal-sub-btn" onclick="asyncAction('{{ url_for('subscribe_channel', owner_name=channel_name, vid_id='none') }}', handleModalSubRes)" class="btn" style="background: {{ '#333' if is_sub else '#f1f1f1' }}; color: {{ '#fff' if is_sub else '#0f0f0f' }}; padding: 9px 18px; font-size: 13px; font-weight: bold;">
+                        <span id="modal-sub-txt">{{ t.subscribed if is_sub else t.subscribe }}</span>
                     </button>
                 {% elif current_user == channel_name %}
-                    <a href="{{ url_for('studio') }}" class="btn btn-accent" style="padding: 10px 20px;">ניהול סרטונים (Studio)</a>
+                    <a href="{{ url_for('studio') }}" class="btn btn-accent" style="padding: 9px 16px; font-size: 13px;">ניהול ערוץ (Studio)</a>
                 {% endif %}
             </div>
         </div>
 
-        <div class="divider" style="margin: 20px 0;"></div>
+        <div class="divider" style="margin: 16px 0;"></div>
 
-        <h3 style="margin-bottom: 16px;">סרטוני הערוץ</h3>
+        <h3 style="margin-bottom: 14px; font-size: 16px;">סרטוני הערוץ</h3>
 
         {% if not ch_videos %}
-            <div class="empty">
-                <p>{{ t.no_videos }}</p>
+            <div class="empty" style="padding: 30px;">
+                <p>אין עדיין סרטונים בערוץ זה.</p>
             </div>
         {% else %}
-            <div class="grid">
+            <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px;">
                 {% for v in ch_videos %}
-                    <a href="{{ url_for('watch', vid_id=v.id) }}" class="card">
+                    <a href="{{ url_for('watch', vid_id=v.id) }}" class="card" onclick="closeChannelModal();">
                         <div class="thumb" style="border-color: {{ v.get('thumb_color', '#333') }};">
                             {% if v.category %}<span class="thumb-cat">{{ v.category }}</span>{% endif %}
                             {% if v.get('thumb_file') %}
@@ -679,10 +651,10 @@ def channel_page(channel_name):
                                 <div class="thumb-overlay"><div class="thumb-play">▶</div></div>
                             {% endif %}
                         </div>
-                        <div class="card-info">
+                        <div class="card-info" style="margin-top: 6px;">
                             <div>
-                                <div class="card-title">{{ v.title }}</div>
-                                <div class="card-meta">{{ v.get('views', 0) }} {{ t.views }}</div>
+                                <div class="card-title" style="font-size: 13px;">{{ v.title }}</div>
+                                <div class="card-meta" style="font-size: 11px;">{{ v.get('views', 0) }} {{ t.views }}</div>
                             </div>
                         </div>
                     </a>
@@ -692,28 +664,9 @@ def channel_page(channel_name):
     </div>
 
     <script>
-        async function asyncAction(url, callback) {
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
-                const data = await res.json();
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                    return;
-                }
-                if (data.ok) {
-                    callback(data);
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        function handleChannelSubRes(data) {
-            const btn = document.getElementById('channel-sub-btn');
-            const txt = document.getElementById('channel-sub-txt');
+        function handleModalSubRes(data) {
+            const btn = document.getElementById('modal-sub-btn');
+            const txt = document.getElementById('modal-sub-txt');
             if (btn) {
                 btn.style.background = data.subscribed ? '#333' : '#f1f1f1';
                 btn.style.color = data.subscribed ? '#fff' : '#0f0f0f';
@@ -723,8 +676,7 @@ def channel_page(channel_name):
             }
         }
     </script>
-    """
-    return render_page(html, active_nav="home", user_info=user_info, channel_name=channel_name, ch_videos=ch_videos, total_views=total_views, subs_count=subs_count, is_sub=is_sub)
+    """, data=data, t=t, user_info=user_info, channel_name=channel_name, ch_videos=ch_videos, total_views=total_views, subs_count=subs_count, is_sub=is_sub, current_user=session.get("user"))
 
 @app.route("/yobshort")
 def yobshort():
@@ -855,6 +807,7 @@ def yobshort():
             gap: 8px;
             font-weight: bold;
             font-size: 14px;
+            cursor: pointer;
         }
         .short-title {
             font-size: 15px;
@@ -1055,7 +1008,7 @@ def yobshort():
                                 <div class="short-bottom">
                                     <div class="short-info">
                                         <div class="short-channel-row">
-                                            <a href="{{ url_for('channel_page', channel_name=v.owner) }}" class="short-channel">
+                                            <div onclick="openChannelModal('{{ v.owner }}')" class="short-channel">
                                                 <div class="avatar" style="width:34px; height:34px; font-size:14px; background: {{ owner.get('avatar_color', '#16a085') }};">
                                                     {% if owner.get('avatar_file') %}
                                                         <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
@@ -1064,7 +1017,7 @@ def yobshort():
                                                     {% endif %}
                                                 </div>
                                                 <span>@{{ ch_name }}</span>
-                                            </a>
+                                            </div>
                                             {% if current_user != v.owner %}
                                                 <button type="button" id="short-sub-btn-{{ v.id }}" onclick="toggleShortSub('{{ v.owner }}', '{{ v.id }}')" class="btn btn-sm" style="background: {{ '#333' if is_sub else '#f1f1f1' }}; color: {{ '#fff' if is_sub else '#0f0f0f' }}; font-weight: bold;">
                                                     <span id="short-sub-text-{{ v.id }}">{{ t.subscribed if is_sub else t.subscribe }}</span>
@@ -1461,17 +1414,15 @@ def watch(vid_id):
 
         <div class="watch-bar">
             <div style="display:flex; align-items:center; gap:12px;">
-                <a href="{{ url_for('channel_page', channel_name=video.owner) }}">
-                    <div class="avatar" style="width:44px; height:44px; background: {{ owner.get('avatar_color', '#16a085') }};">
-                        {% if owner.get('avatar_file') %}
-                            <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
-                        {% else %}
-                            {{ ch_name[0]|upper }}
-                        {% endif %}
-                    </div>
-                </a>
+                <div class="avatar" onclick="openChannelModal('{{ video.owner }}')" style="width:44px; height:44px; background: {{ owner.get('avatar_color', '#16a085') }};">
+                    {% if owner.get('avatar_file') %}
+                        <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
+                    {% else %}
+                        {{ ch_name[0]|upper }}
+                    {% endif %}
+                </div>
                 <div>
-                    <a href="{{ url_for('channel_page', channel_name=video.owner) }}"><div style="font-weight:bold; font-size:15px;">{{ ch_name }}</div></a>
+                    <div onclick="openChannelModal('{{ video.owner }}')" style="font-weight:bold; font-size:15px; cursor:pointer;">{{ ch_name }}</div>
                     <div class="card-meta"><span id="sub-count-text">{{ owner.get('subscribers', [])|length }}</span> {{ t.subs_count }} • <span id="watch-view-count">{{ video.get('views', 0) }}</span> {{ t.views }}</div>
                 </div>
             </div>
@@ -1506,7 +1457,7 @@ def watch(vid_id):
             {% set c_author = data.users.get(c.user, {}).get('channel_name', c.user) %}
             {% set c_liked = current_user in c.get('likes', []) %}
             <div class="comment-item">
-                <div class="comment-author">
+                <div class="comment-author" onclick="openChannelModal('{{ c.user }}')">
                     <span>@{{ c_author }}</span>
                     {% if c.user == video.owner %}<span class="creator-badge">יוצר הערוץ</span>{% endif %}
                 </div>
@@ -1531,7 +1482,7 @@ def watch(vid_id):
                         {% for r in c.get('replies', []) %}
                             {% set r_author = data.users.get(r.user, {}).get('channel_name', r.user) %}
                             <div class="reply-item">
-                                <div class="comment-author">
+                                <div class="comment-author" onclick="openChannelModal('{{ r.user }}')">
                                     <span>@{{ r_author }}</span>
                                     {% if r.user == video.owner %}<span class="creator-badge">יוצר הערוץ</span>{% endif %}
                                 </div>
@@ -2087,7 +2038,7 @@ def studio():
 
         <div style="margin: 20px 0; display: flex; gap: 12px; flex-wrap: wrap;">
             <a href="{{ url_for('studio_content') }}" class="btn btn-accent" style="padding: 12px 20px; font-size: 15px;">📁 מעבר לניהול תוכן הסרטונים</a>
-            <a href="{{ url_for('channel_page', channel_name=current_user) }}" class="btn" style="padding: 12px 20px; font-size: 15px;">👁️ צפה בערוץ שלי כצופה</a>
+            <button type="button" onclick="openChannelModal('{{ current_user }}')" class="btn" style="padding: 12px 20px; font-size: 15px;">👁️ צפה בערוץ שלי כצופה (בחלונית)</button>
         </div>
 
         <div class="box" style="max-width:100%; margin:20px 0;">
@@ -2407,7 +2358,7 @@ def subscriptions():
     {% else %}
         <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 24px;">
             {% for ch in subscribed_channels %}
-                <a href="{{ url_for('channel_page', channel_name=ch.username) }}" class="card" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding: 8px;">
+                <div class="card" onclick="openChannelModal('{{ ch.username }}')" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding: 8px; cursor: pointer;">
                     <div class="avatar" style="width:96px; height:96px; font-size:34px; margin-bottom:10px; background: {{ ch.avatar_color }};">
                         {% if ch.avatar_file %}
                             <img src="{{ url_for('uploaded_file', filename=ch.avatar_file) }}" alt="{{ ch.channel_name }}">
@@ -2417,7 +2368,7 @@ def subscriptions():
                     </div>
                     <div class="card-title" style="font-size:16px;">{{ ch.channel_name }}</div>
                     <div class="card-meta" style="margin-top:3px; font-size:13px;">{{ ch.subs_count }} {{ t.subs_count }}</div>
-                </a>
+                </div>
             {% endfor %}
         </div>
     {% endif %}
@@ -2467,19 +2418,17 @@ def subscriptions_feed():
                                 </div>
                             </a>
                             <div class="card-info">
-                                <a href="{{ url_for('channel_page', channel_name=v.owner) }}">
-                                    <div class="avatar" style="background: {{ owner.get('avatar_color', '#16a085') }};">
-                                        {% if owner.get('avatar_file') %}
-                                            <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
-                                        {% else %}
-                                            {{ ch_name[0]|upper }}
-                                        {% endif %}
-                                    </div>
-                                </a>
+                                <div class="avatar" onclick="openChannelModal('{{ v.owner }}')" style="background: {{ owner.get('avatar_color', '#16a085') }};">
+                                    {% if owner.get('avatar_file') %}
+                                        <img src="{{ url_for('uploaded_file', filename=owner.avatar_file) }}">
+                                    {% else %}
+                                        {{ ch_name[0]|upper }}
+                                    {% endif %}
+                                </div>
                                 <div>
                                     <a href="{{ url_for('watch', vid_id=v.id) }}"><div class="card-title">{{ v.title }}</div></a>
                                     <div class="card-meta">
-                                        <a href="{{ url_for('channel_page', channel_name=v.owner) }}">{{ ch_name }}</a> • {{ v.get('views', 0) }} {{ t.views }}
+                                        <span onclick="openChannelModal('{{ v.owner }}')" style="cursor: pointer; color: #aaa;">{{ ch_name }}</span> • {{ v.get('views', 0) }} {{ t.views }}
                                     </div>
                                 </div>
                             </div>
