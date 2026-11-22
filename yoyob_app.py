@@ -1095,6 +1095,38 @@ def yobshort():
                 }
             }
 
+            // Count a Yobshort view only after 2 continuous seconds of playback.
+            const shortViewTimers = new WeakMap();
+            const countedShorts = new Set();
+            slides.forEach(slide => {
+                const video = slide.querySelector('video');
+                if (!video) return;
+                const vidId = slide.dataset.vidId;
+                video.addEventListener('playing', () => {
+                    if (countedShorts.has(vidId) || shortViewTimers.has(video)) return;
+                    const timer = setTimeout(async () => {
+                        shortViewTimers.delete(video);
+                        if (video.paused || video.ended || countedShorts.has(vidId)) return;
+                        countedShorts.add(vidId);
+                        try {
+                            await fetch(`/view/${vidId}`, {
+                                method: 'POST',
+                                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                            });
+                        } catch (err) { console.error(err); }
+                    }, 2000);
+                    shortViewTimers.set(video, timer);
+                });
+                const cancelViewTimer = () => {
+                    const timer = shortViewTimers.get(video);
+                    if (timer) clearTimeout(timer);
+                    shortViewTimers.delete(video);
+                };
+                video.addEventListener('pause', cancelViewTimer);
+                video.addEventListener('waiting', cancelViewTimer);
+                video.addEventListener('ended', cancelViewTimer);
+            });
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     const vid = entry.target.querySelector('video');
@@ -1143,9 +1175,6 @@ def watch(vid_id):
     if not video:
         return redirect(url_for("index"))
 
-    video["views"] = int(video.get("views", 0)) + 1
-    save_data(data)
-
     filename = video.get("web_file") or os.path.basename(video.get("file_path", ""))
 
     html = """
@@ -1153,7 +1182,7 @@ def watch(vid_id):
         {% set owner = data.users.get(video.owner, {}) %}
         {% set ch_name = owner.get('channel_name', video.owner) %}
 
-        <video class="player" controls autoplay {% if video.get('thumb_file') %}poster="{{ url_for('uploaded_file', filename=video.thumb_file) }}"{% endif %}>
+        <video class="player" id="watch-video-player" controls autoplay data-vid-id="{{ video.id }}" {% if video.get('thumb_file') %}poster="{{ url_for('uploaded_file', filename=video.thumb_file) }}"{% endif %}>
             <source src="{{ url_for('uploaded_file', filename=filename) }}">
             הדפדפן שלך לא תומך בניגון וידאו.
         </video>
@@ -1171,7 +1200,7 @@ def watch(vid_id):
                 </div>
                 <div>
                     <div style="font-weight:bold; font-size:15px;">{{ ch_name }}</div>
-                    <div class="card-meta"><span id="sub-count-text">{{ owner.get('subscribers', [])|length }}</span> {{ t.subs_count }} • {{ video.get('views', 0) }} {{ t.views }}</div>
+                    <div class="card-meta"><span id="sub-count-text">{{ owner.get('subscribers', [])|length }}</span> {{ t.subs_count }} • <span id="watch-view-count">{{ video.get('views', 0) }}</span> {{ t.views }}</div>
                 </div>
             </div>
 
@@ -1290,9 +1319,64 @@ def watch(vid_id):
             if (cnt) cnt.textContent = data.count;
             if (cntTxt) cntTxt.textContent = data.count;
         }
+
+        // Count only after 2 continuous seconds of actual playback.
+        const watchPlayer = document.getElementById('watch-video-player');
+        if (watchPlayer) {
+            let viewTimer = null;
+            let viewSent = false;
+            const cancelViewTimer = () => {
+                if (viewTimer) clearTimeout(viewTimer);
+                viewTimer = null;
+            };
+            watchPlayer.addEventListener('playing', () => {
+                if (viewSent || viewTimer) return;
+                viewTimer = setTimeout(async () => {
+                    viewTimer = null;
+                    if (watchPlayer.paused || watchPlayer.ended || viewSent) return;
+                    viewSent = true;
+                    try {
+                        const response = await fetch(`/view/${watchPlayer.dataset.vidId}`, {
+                            method: 'POST',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        const result = await response.json();
+                        const count = document.getElementById('watch-view-count');
+                        if (result.ok && count) count.textContent = result.views;
+                    } catch (err) { console.error(err); }
+                }, 2000);
+            });
+            watchPlayer.addEventListener('pause', cancelViewTimer);
+            watchPlayer.addEventListener('waiting', cancelViewTimer);
+            watchPlayer.addEventListener('ended', cancelViewTimer);
+        }
     </script>
     """
     return render_page(html, video=video, filename=filename)
+
+@app.route("/view/<vid_id>", methods=["POST"])
+def register_video_view(vid_id):
+    """Register at most one view per video per browser session."""
+    viewed = session.get("viewed_video_ids", [])
+    if vid_id in viewed:
+        data = load_data()
+        video = next((v for v in data["videos"] if v["id"] == vid_id), None)
+        if not video:
+            return jsonify({"ok": False}), 404
+        return jsonify({"ok": True, "counted": False, "views": int(video.get("views", 0))})
+
+    data = load_data()
+    video = next((v for v in data["videos"] if v["id"] == vid_id), None)
+    if not video:
+        return jsonify({"ok": False}), 404
+
+    video["views"] = int(video.get("views", 0)) + 1
+    save_data(data)
+    viewed.append(vid_id)
+    # Keep the signed session cookie reasonably small.
+    session["viewed_video_ids"] = viewed[-200:]
+    return jsonify({"ok": True, "counted": True, "views": video["views"]})
+
 
 @app.route("/save/<vid_id>", methods=["POST"])
 def save_video(vid_id):
