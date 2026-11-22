@@ -8,6 +8,10 @@ import cv2
 app = Flask(__name__)
 app.secret_key = "yoyob_super_secret_key_change_me"
 
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME = "demo"  # Replace with actual Cloud Name if provided
+CLOUDINARY_UPLOAD_PRESET = "yoyob_preset"  # Replace with actual upload preset if provided
+
 DATA_FILE = "yoyob_data.json"
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -134,7 +138,7 @@ def migrate_thumbnails():
             data = json.load(f)
         changed = False
         for v in data.get("videos", []):
-            if not v.get("thumb_file"):
+            if not v.get("thumb_file") and v.get("web_file") and not v["web_file"].startswith("http"):
                 v_path = v.get("file_path") or os.path.join(UPLOAD_FOLDER, v.get("web_file", ""))
                 if os.path.exists(v_path):
                     try:
@@ -403,6 +407,8 @@ def render_page(content_html, active_nav="home", **kwargs):
 
 @app.route("/uploads/<path:filename>")
 def uploaded_file(filename):
+    if filename.startswith("http"):
+        return redirect(filename)
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 @app.route("/")
@@ -1484,39 +1490,18 @@ def upload():
     error = ""
 
     if request.method == "POST":
-        file = request.files.get("video_file")
-        thumb_file = request.files.get("thumb_file")
+        video_url = request.form.get("video_url", "").strip()
+        thumb_url = request.form.get("thumb_url", "").strip()
         title = request.form.get("title", "").strip()
         desc = request.form.get("description", "").strip()
         cat_name = request.form.get("category", "")
-        is_short = request.form.get("is_short") == "1" 
+        is_short = request.form.get("is_short") == "1"
 
-        if not file or not file.filename or not title:
-            error = "חובה לבחור קובץ וידאו ולהזין כותרת."
+        if not video_url or not title:
+            error = "חובה להעלות סרטון ולהזין כותרת."
         else:
-            ext = os.path.splitext(secure_filename(file.filename))[1] or ".mp4"
-            unique_name = f"{uuid.uuid4().hex}{ext}"
-            save_path = os.path.join(app.config["UPLOAD_FOLDER"], unique_name)
-            file.save(save_path)
-
-            thumb_name = ""
-            if thumb_file and thumb_file.filename:
-                t_ext = os.path.splitext(secure_filename(thumb_file.filename))[1] or ".jpg"
-                thumb_name = f"thumb_{uuid.uuid4().hex}{t_ext}"
-                thumb_file.save(os.path.join(app.config["UPLOAD_FOLDER"], thumb_name))
-            else:
-                try:
-                    cap = cv2.VideoCapture(save_path)
-                    success, frame = cap.read()
-                    if not success or frame is None or frame.size == 0:
-                        cap.set(cv2.CAP_PROP_POS_MSEC, 1000)
-                        success, frame = cap.read()
-                    if success and frame is not None and frame.size > 0:
-                        thumb_name = f"thumb_{uuid.uuid4().hex}.jpg"
-                        cv2.imwrite(os.path.join(app.config["UPLOAD_FOLDER"], thumb_name), frame)
-                    cap.release()
-                except Exception as e:
-                    print("Auto thumbnail error:", e)
+            if not thumb_url and "/upload/" in video_url:
+                thumb_url = video_url.rsplit(".", 1)[0] + ".jpg"
 
             cat_idx = t["cats"].index(cat_name) if cat_name in t["cats"] else 1
             new_vid = {
@@ -1524,9 +1509,9 @@ def upload():
                 "owner": session["user"],
                 "title": title,
                 "description": desc,
-                "web_file": unique_name,
-                "file_path": save_path,
-                "thumb_file": thumb_name,
+                "web_file": video_url,
+                "file_path": video_url,
+                "thumb_file": thumb_url,
                 "category": cat_name,
                 "cat_idx": cat_idx,
                 "is_short": is_short,
@@ -1541,17 +1526,20 @@ def upload():
             return redirect(url_for("index"))
 
     html = """
-    <div class="box">
+    <div class="box" style="max-width: 600px;">
         <h2>{{ t.create }}</h2>
         {% if error %}<div class="alert">{{ error }}</div>{% endif %}
-        <form method="post" enctype="multipart/form-data">
+        <form id="uploadForm" method="post">
+            <input type="hidden" name="video_url" id="video_url">
+            <input type="hidden" name="thumb_url" id="thumb_url">
+
             <div class="form-group">
                 <label>קובץ סרטון (MP4 / WebM / MOV):</label>
-                <input type="file" name="video_file" accept="video/*" required>
+                <input type="file" id="video_file" accept="video/*" required>
             </div>
             <div class="form-group">
-                <label>תמונה ממוזערת / טמנייל (אופציונלי):</label>
-                <input type="file" name="thumb_file" accept="image/*">
+                <label>תמונה ממוזערת / טמנייל (אופציונלי - ייווצר אוטומטית אם ריק):</label>
+                <input type="file" id="thumb_file" accept="image/*">
             </div>
             <div class="form-group">
                 <label>כותרת הסרטון:</label>
@@ -1576,11 +1564,61 @@ def upload():
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-accent" style="width:100%; justify-content:center; padding:12px;">🚀 פרסם סרטון</button>
+            <div id="uploadStatus" style="margin-bottom:12px; color:#3ea6ff; font-weight:bold; display:none;"></div>
+            <button type="submit" id="submitBtn" class="btn btn-accent" style="width:100%; justify-content:center; padding:12px;">🚀 פרסם סרטון</button>
         </form>
     </div>
+
+    <script>
+        const CLOUD_NAME = "{{ cloud_name }}";
+        const UPLOAD_PRESET = "{{ upload_preset }}";
+
+        async function uploadToCloudinary(file, resourceType) {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", UPLOAD_PRESET);
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error?.message || "Upload failed");
+            return data.secure_url;
+        }
+
+        document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const videoFile = document.getElementById("video_file").files[0];
+            const thumbFile = document.getElementById("thumb_file").files[0];
+            const statusEl = document.getElementById("uploadStatus");
+            const btn = document.getElementById("submitBtn");
+
+            if (!videoFile) return;
+            btn.disabled = true;
+            statusEl.style.display = "block";
+            statusEl.textContent = "⏳ מעלה סרטון לענן... נא לא לסגור את הדף";
+
+            try {
+                const vidUrl = await uploadToCloudinary(videoFile, "video");
+                document.getElementById("video_url").value = vidUrl;
+
+                if (thumbFile) {
+                    statusEl.textContent = "⏳ מעלה תמונה ממוזערת...";
+                    const thUrl = await uploadToCloudinary(thumbFile, "image");
+                    document.getElementById("thumb_url").value = thUrl;
+                }
+
+                statusEl.textContent = "✅ ההעלאה הושלמה! מפרסם...";
+                this.submit();
+            } catch (err) {
+                alert("שגיאה בהעלאה: " + err.message);
+                btn.disabled = false;
+                statusEl.style.display = "none";
+            }
+        });
+    </script>
     """
-    return render_page(html, error=error)
+    return render_page(html, error=error, cloud_name=CLOUDINARY_CLOUD_NAME, upload_preset=CLOUDINARY_UPLOAD_PRESET)
 
 @app.route("/studio", methods=["GET", "POST"])
 def studio():
@@ -1819,18 +1857,17 @@ def delete_video(vid_id):
         user = session["user"]
         video_to_delete = next((v for v in data["videos"] if v["id"] == vid_id and v["owner"] == user), None)
         if video_to_delete:
-            for f_key in ["web_file", "file_path"]:
-                fname = video_to_delete.get(f_key)
-                if fname:
-                    p = fname if os.path.isabs(fname) else os.path.join(app.config["UPLOAD_FOLDER"], os.path.basename(fname))
-                    if os.path.exists(p):
-                        try:
-                            os.remove(p)
-                        except Exception as e:
-                            print("Error deleting video file:", e)
+            fname = video_to_delete.get("web_file")
+            if fname and not fname.startswith("http"):
+                p = os.path.join(app.config["UPLOAD_FOLDER"], os.path.basename(fname))
+                if os.path.exists(p):
+                    try:
+                        os.remove(p)
+                    except Exception as e:
+                        print("Error deleting video file:", e)
             
             thumb = video_to_delete.get("thumb_file")
-            if thumb:
+            if thumb and not thumb.startswith("http"):
                 tp = os.path.join(app.config["UPLOAD_FOLDER"], os.path.basename(thumb))
                 if os.path.exists(tp):
                     try:
