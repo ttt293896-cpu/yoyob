@@ -46,36 +46,6 @@ LANGUAGES = {
     }
 }
 
-def load_data():
-    doc = collection.find_one({"_id": "main_data"})
-    if doc and "data" in doc:
-        data = doc["data"]
-        changed = False
-        for v in data.get("videos", []):
-            if "views" not in v:
-                v["views"] = 0
-                changed = True
-            if "created_at" not in v:
-                v["created_at"] = 0
-                changed = True
-            for c in v.get("comments", []):
-                if "id" not in c:
-                    c["id"] = str(uuid.uuid4())
-                    changed = True
-                if "likes" not in c:
-                    c["likes"] = []
-                    changed = True
-                if "replies" not in c:
-                    c["replies"] = []
-                    changed = True
-        if changed:
-            save_data(data)
-        return data
-    
-    initial_data = {"language": "עברית", "users": {}, "videos": []}
-    save_data(initial_data)
-    return initial_data
-
 def save_data(data):
     collection.update_one(
         {"_id": "main_data"},
