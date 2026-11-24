@@ -45,6 +45,49 @@ LANGUAGES = {
         "views": "views", "cats": ["All", "Gaming", "Music", "Coding", "Comedy", "Vlogs", "Education"]
     }
 }
+def load_data():
+    try:
+        doc = collection.find_one({"_id": "main_data"})
+        if doc and "data" in doc:
+            data = doc["data"]
+            data.setdefault("users", {})
+            data.setdefault("videos", [])
+            data.setdefault("language", "עברית")
+            
+            changed = False
+            for v in data.get("videos", []):
+                if "views" not in v:
+                    v["views"] = 0
+                    changed = True
+                if "created_at" not in v:
+                    v["created_at"] = 0
+                    changed = True
+                for c in v.get("comments", []):
+                    if "id" not in c:
+                        c["id"] = str(uuid.uuid4())
+                        changed = True
+                    if "likes" not in c:
+                        c["likes"] = []
+                        changed = True
+                    if "replies" not in c:
+                        c["replies"] = []
+                        changed = True
+            if changed:
+                save_data(data)
+            return data
+    except Exception as e:
+        print("Error loading data from MongoDB:", e)
+    
+    try:
+        existing_doc = collection.find_one({"_id": "main_data"})
+        if not existing_doc:
+            initial_data = {"language": "עברית", "users": {}, "videos": []}
+            save_data(initial_data)
+            return initial_data
+    except Exception as e:
+        print("Error checking existing doc:", e)
+
+    return {"language": "עברית", "users": {}, "videos": []}
 
 def save_data(data):
     collection.update_one(
