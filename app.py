@@ -6,8 +6,6 @@ from flask import Flask, request, jsonify, session, render_template_string
 from werkzeug.security import generate_password_hash, check_password_hash
 import cloudinary
 import cloudinary.uploader
-from PIL import Image
-import io
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "super-secret-key-change-in-render-998877")
@@ -26,24 +24,6 @@ else:
         api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
         secure=True
     )
-
-# --- פונקציית כיווץ תמונות אוטומטית ---
-def compress_image(image_file):
-    try:
-        img = Image.open(image_file)
-        if img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
-        # הקטנת ממדים למקסימום 1200x1200 פיקסלים לשמירה על חדות וצמצום משקל
-        img.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
-        
-        buffer = io.BytesIO()
-        img.save(buffer, format="JPEG", quality=85, optimize=True)
-        buffer.seek(0)
-        return buffer
-    except Exception as e:
-        print(f"Error compressing image: {e}")
-        image_file.seek(0)
-        return image_file
 
 # --- הגדרת מסד הנתונים המקומי SQLite ---
 DB_FILE = "database.db"
@@ -817,8 +797,7 @@ def update_profile():
         updates["display_name"] = display_name
 
     if "avatar" in request.files and request.files["avatar"].filename != "":
-        compressed_avatar = compress_image(request.files["avatar"])
-        upload_res = cloudinary.uploader.upload(compressed_avatar, folder="avatars")
+        upload_res = cloudinary.uploader.upload(request.files["avatar"])
         updates["avatar"] = upload_res["secure_url"]
 
     if updates:
@@ -851,8 +830,7 @@ def create_room():
 
     image_url = None
     if "image" in request.files and request.files["image"].filename != "":
-        compressed_img = compress_image(request.files["image"])
-        upload_res = cloudinary.uploader.upload(compressed_img, folder="rooms")
+        upload_res = cloudinary.uploader.upload(request.files["image"])
         image_url = upload_res["secure_url"]
 
     conn = get_db()
@@ -900,8 +878,7 @@ def add_room_item(room_id):
     text = request.form.get("text", "").strip()
     image_url = None
     if "image" in request.files and request.files["image"].filename != "":
-        compressed_img = compress_image(request.files["image"])
-        upload_res = cloudinary.uploader.upload(compressed_img, folder="rooms")
+        upload_res = cloudinary.uploader.upload(request.files["image"])
         image_url = upload_res["secure_url"]
 
     if text or image_url:
@@ -985,8 +962,7 @@ def send_suggestion():
     text = request.form.get("text", "").strip()
     image_url = None
     if "image" in request.files and request.files["image"].filename != "":
-        compressed_img = compress_image(request.files["image"])
-        upload_res = cloudinary.uploader.upload(compressed_img, folder="suggestions")
+        upload_res = cloudinary.uploader.upload(request.files["image"])
         image_url = upload_res["secure_url"]
 
     conn = get_db()
