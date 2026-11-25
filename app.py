@@ -16,7 +16,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "super-secret-key-change-in-render
 ADMIN_USERNAME = "meir_pro"
 ADMIN_PASSWORD = "qwert1234t711"
 
-# --- חיבור ישיר ומאובטח ל-Cloudinary (מונע לחלוטין שגיאות API) ---
+# --- חיבור ישיר ומאובטח שמתעלם לחלוטין מבעיות בשורות הטקסט של Render ---
 cloudinary.config(
     cloud_name="tgu8n7hi",
     api_key="68973154235792",
