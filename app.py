@@ -10,9 +10,9 @@ import cloudinary.uploader
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "super-secret-key-change-in-render-998877")
 
-# --- הגדרות אדמין ---
-ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "123456")
+# --- הגדרות אדמין מעודכנות לבקשתך ---
+ADMIN_USERNAME = "meir_pro"
+ADMIN_PASSWORD = "qwert1234t711"
 
 # --- חיבור ל-Cloudinary ---
 if os.environ.get("CLOUDINARY_URL"):
@@ -86,7 +86,7 @@ def init_db():
     ''')
     conn.commit()
 
-    # יצירת אדמין ברירת מחדל אם אינו קיים
+    # יצירת אדמין ברירת מחדל עם הפרטים שביקשת
     admin = cursor.execute("SELECT * FROM users WHERE username = ?", (ADMIN_USERNAME,)).fetchone()
     if not admin:
         cursor.execute('''
@@ -94,12 +94,19 @@ def init_db():
             VALUES (?, ?, ?, ?, ?)
         ''', (
             ADMIN_USERNAME,
-            "מנהל המערכת",
+            "מאיר (מנהל ראשי)",
             generate_password_hash(ADMIN_PASSWORD),
             "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
             1
         ))
         conn.commit()
+    else:
+        # לוודא שהסיסמה ושם המשתמש מעודכנים גם אם הטבלה כבר קיימת
+        cursor.execute('''
+            UPDATE users SET password = ?, is_admin = 1 WHERE username = ?
+        ''', (generate_password_hash(ADMIN_PASSWORD), ADMIN_USERNAME))
+        conn.commit()
+        
     conn.close()
 
 init_db()
@@ -128,7 +135,7 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת חיפוש ומידע</title>
+    <title>מערכת חיפוש ומידע - Meir Pro</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #050505; color: #ffffff; overflow: hidden; height: 100vh; width: 100vw; }
