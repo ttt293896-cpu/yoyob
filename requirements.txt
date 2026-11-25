@@ -1,6 +1,6 @@
 flask
 pymongo
 dnspython
-opencv-python
+opencv-python-headless
 werkzeug
 gunicorn
