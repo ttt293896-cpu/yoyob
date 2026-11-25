@@ -20,7 +20,7 @@ ADMIN_PASSWORD = "qwert1234t711"
 cloudinary.config(
     cloud_name="tgu8n7hi",
     api_key="689731542357982",
-    api_secret="ZUwrOBz_MMfsTbvCJWZGx2AxwbE",
+    api_secret="ZUWr0Bz_MMfsTbvCJWZGx2AxwbE",
     secure=True
 )
 
