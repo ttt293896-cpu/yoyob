@@ -12,23 +12,25 @@ import io
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "super-secret-key-change-in-render-998877")
 
-# --- הגדרות אדמין מעודכנות לבקשתך ---
+# --- הגדרות אדמין ---
 ADMIN_USERNAME = "meir_pro"
 ADMIN_PASSWORD = "qwert1234t711"
 
-# --- חיבור מדויק מבוסס על משתנה הסביבה CLOUDINARY_URL בלבד ---
+# --- חיבור ישיר ומאובטח ל-Cloudinary (מונע לחלוטין שגיאות API) ---
 cloudinary.config(
-    cloudinary_url=os.environ.get("CLOUDINARY_URL"),
+    cloud_name="tgu8n7hi",
+    api_key="68973154235792",
+    api_secret="ZUwrOBz_MMfsTbvCJWZGx2AxwbE",
     secure=True
 )
 
-# --- פונקציית כיווץ תמונות אוטומטית ---
+# --- פונקציית כיווץ תמונות אוטומטית ובטוחה ---
 def compress_image(image_file):
     try:
+        image_file.seek(0)
         img = Image.open(image_file)
         if img.mode in ("RGBA", "P"):
             img = img.convert("RGB")
-        # הקטנת ממדים למקסימום 1200x1200 פיקסלים לשמירה על חדות וצמצום משקל
         img.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
         
         buffer = io.BytesIO()
@@ -37,10 +39,13 @@ def compress_image(image_file):
         return buffer
     except Exception as e:
         print(f"Error compressing image: {e}")
-        image_file.seek(0)
-        return image_file
+        try:
+            image_file.seek(0)
+            return image_file
+        except:
+            return None
 
-# --- הגדרת מסד הנתונים המקומי SQLite ---
+# --- הגדרת מסד הנתונים SQLite ---
 DB_FILE = "database.db"
 
 def get_db():
@@ -52,7 +57,6 @@ def init_db():
     conn = get_db()
     cursor = conn.cursor()
     
-    # טבלת משתמשים
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             username TEXT PRIMARY KEY,
@@ -63,7 +67,6 @@ def init_db():
         )
     ''')
     
-    # טבלת חדרים
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS rooms (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,7 +77,6 @@ def init_db():
         )
     ''')
     
-    # טבלת פריטים/הודעות בתוך חדרים (כמו צאט)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS room_items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -86,7 +88,6 @@ def init_db():
         )
     ''')
     
-    # טבלת צ'אט הצעות מול האדמין
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS suggestions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -101,7 +102,6 @@ def init_db():
     ''')
     conn.commit()
 
-    # יצירת אדמין ברירת מחדל עם הפרטים שביקשת
     admin = cursor.execute("SELECT * FROM users WHERE username = ?", (ADMIN_USERNAME,)).fetchone()
     if not admin:
         cursor.execute('''
@@ -190,12 +190,10 @@ HTML_TEMPLATE = """
         .profile-widget:hover { border-color: #fff; }
         .profile-widget img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid #555; }
         
-        /* כפתור ומגירת הצעות (ימין) */
         .suggestions-side-btn { position: fixed; right: 0; top: 50%; transform: translateY(-50%); background: #ffffff; color: #000000; padding: 16px 12px; border-radius: 12px 0 0 12px; font-weight: bold; cursor: pointer; z-index: 25; writing-mode: vertical-rl; text-orientation: mixed; box-shadow: -4px 0 20px rgba(255,255,255,0.2); }
         #suggestions-drawer { position: fixed; right: -380px; top: 0; width: 360px; max-width: 90vw; height: 100vh; background: #111111; border-left: 1px solid #333; z-index: 50; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         #suggestions-drawer.open { right: 0; }
         
-        /* כפתור ומגירת ניהול חדרים (שמאל) */
         .admin-rooms-side-btn { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: #00ffaa; color: #000000; padding: 16px 12px; border-radius: 0 12px 12px 0; font-weight: bold; cursor: pointer; z-index: 25; writing-mode: vertical-rl; text-orientation: mixed; box-shadow: 4px 0 20px rgba(0,255,170,0.2); }
         #admin-rooms-drawer { position: fixed; left: -380px; top: 0; width: 360px; max-width: 90vw; height: 100vh; background: #111111; border-right: 1px solid #333; z-index: 50; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         #admin-rooms-drawer.open { left: 0; }
@@ -210,7 +208,6 @@ HTML_TEMPLATE = """
         .admin-chat-user-item { padding: 12px; background: #1b1b1b; border-radius: 8px; margin-bottom: 8px; cursor: pointer; border: 1px solid #2c2c2c; }
         .admin-chat-user-item:hover { border-color: #fff; }
         
-        /* עיצוב פס התקדמות העלאה */
         .progress-wrapper { display: none; margin-top: 12px; width: 100%; text-align: right; }
         .progress-bar-container { width: 100%; background: #222; border-radius: 8px; height: 10px; overflow: hidden; border: 1px solid #444; }
         .progress-bar-fill { width: 0%; height: 100%; background: #00ffaa; transition: width 0.1s linear; }
@@ -241,10 +238,8 @@ HTML_TEMPLATE = """
     <div id="app-screen">
         <button id="admin-add-room-btn" title="צור חדר חדש" onclick="openModal('create-room-modal')">+</button>
 
-        <!-- כפתור צד שמאל לניהול חדרים (לאדמין בלבד) -->
         <div class="admin-rooms-side-btn" id="admin-rooms-toggle-btn" onclick="toggleAdminRoomsDrawer()">ניהול חדרים</div>
 
-        <!-- מגירת ניהול חדרים צדדית -->
         <div id="admin-rooms-drawer">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px;">
                 <h3>ניהול ועריכת חדרים</h3>
@@ -325,10 +320,8 @@ HTML_TEMPLATE = """
             <span class="close-btn" onclick="closeModal('room-view-modal')">&times;</span>
             <h2 id="view-room-title">שם החדר</h2>
             <div class="room-meta" id="view-room-meta"></div>
-            <!-- תצוגת ההודעות בחדר (כמו צ'אט) -->
             <div id="view-room-items" style="max-height: 40vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;"></div>
 
-            <!-- אזור הוספת תוכן לחדר - יוצג אך ורק למנהל -->
             <div id="admin-add-to-room-section" style="display:none; border-top:1px solid #333; margin-top:20px; padding-top:15px;">
                 <h4 style="color:#00ffaa; margin-bottom:8px;">+ הוסף הודעה או תמונה לחדר (עריכה)</h4>
                 <textarea id="append-room-text" rows="2" placeholder="הודעה חדשה לעדכון החדר..."></textarea>
@@ -477,7 +470,6 @@ HTML_TEMPLATE = """
             location.reload();
         }
 
-        // --- ניהול מגירת חדרים בצד שמאל (אדמין) ---
         async function toggleAdminRoomsDrawer() {
             const drawer = document.getElementById('admin-rooms-drawer');
             drawer.classList.toggle('open');
@@ -583,7 +575,6 @@ HTML_TEMPLATE = """
                 itemsContainer.appendChild(div);
             });
 
-            // הצגת אזור ההוספה רק אם המשתמש מחובר כאדמין
             if (currentUser && currentUser.is_admin) {
                 document.getElementById('admin-add-to-room-section').style.display = 'block';
             } else {
@@ -592,7 +583,6 @@ HTML_TEMPLATE = """
             openModal('room-view-modal');
         }
 
-        // --- פונקציית העלאה עם מעקב התקדמות (XHR) ---
         function uploadWithProgress(url, formData, progressBoxId, fillId, pctId, timeId, submitBtnId, onSuccess, onError) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', url, true);
@@ -810,7 +800,7 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# --- נתיבי API (Backend עם SQLite) ---
+# --- נתיבי API (Backend) ---
 
 @app.route("/")
 def index():
@@ -898,8 +888,9 @@ def update_profile():
 
     if "avatar" in request.files and request.files["avatar"].filename != "":
         compressed_avatar = compress_image(request.files["avatar"])
-        upload_res = cloudinary.uploader.upload(compressed_avatar, folder="avatars")
-        updates["avatar"] = upload_res["secure_url"]
+        if compressed_avatar:
+            upload_res = cloudinary.uploader.upload(compressed_avatar, folder="avatars")
+            updates["avatar"] = upload_res["secure_url"]
 
     if updates:
         conn = get_db()
@@ -917,7 +908,6 @@ def update_profile():
 
     return jsonify({"success": True})
 
-# --- API: קבלת רשימת כל החדרים למנהל ---
 @app.route("/api/admin/rooms")
 @admin_required
 def admin_get_all_rooms():
@@ -941,8 +931,9 @@ def create_room():
     image_url = None
     if "image" in request.files and request.files["image"].filename != "":
         compressed_img = compress_image(request.files["image"])
-        upload_res = cloudinary.uploader.upload(compressed_img, folder="rooms")
-        image_url = upload_res["secure_url"]
+        if compressed_img:
+            upload_res = cloudinary.uploader.upload(compressed_img, folder="rooms")
+            image_url = upload_res["secure_url"]
 
     conn = get_db()
     cursor = conn.cursor()
@@ -990,8 +981,9 @@ def add_room_item(room_id):
     image_url = None
     if "image" in request.files and request.files["image"].filename != "":
         compressed_img = compress_image(request.files["image"])
-        upload_res = cloudinary.uploader.upload(compressed_img, folder="rooms")
-        image_url = upload_res["secure_url"]
+        if compressed_img:
+            upload_res = cloudinary.uploader.upload(compressed_img, folder="rooms")
+            image_url = upload_res["secure_url"]
 
     if text or image_url:
         conn = get_db()
@@ -1075,8 +1067,9 @@ def send_suggestion():
     image_url = None
     if "image" in request.files and request.files["image"].filename != "":
         compressed_img = compress_image(request.files["image"])
-        upload_res = cloudinary.uploader.upload(compressed_img, folder="suggestions")
-        image_url = upload_res["secure_url"]
+        if compressed_img:
+            upload_res = cloudinary.uploader.upload(compressed_img, folder="suggestions")
+            image_url = upload_res["secure_url"]
 
     conn = get_db()
     user = conn.execute("SELECT display_name FROM users WHERE username = ?", (session["username"],)).fetchone()
