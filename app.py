@@ -16,9 +16,11 @@ app.secret_key = os.environ.get("SECRET_KEY", "super-secret-key-change-in-render
 ADMIN_USERNAME = "meir_pro"
 ADMIN_PASSWORD = "qwert1234t711"
 
-# --- חיבור ל-Cloudinary בצורה בטוחה וישירה דרך CLOUDINARY_URL ---
+# --- חיבור ישיר ומדויק ל-Cloudinary (מבטל תלות במשתני סביבה שגויים) ---
 cloudinary.config(
-    cloudinary_url=os.environ.get("CLOUDINARY_URL"),
+    cloud_name="tgu8n7hi",
+    api_key="68973154235792",
+    api_secret="ZUwrOBz_MMfsTbvCJWZGx2AxwbE",
     secure=True
 )
 
@@ -917,7 +919,7 @@ def update_profile():
 
     return jsonify({"success": True})
 
-# --- API חדש: קבלת רשימת כל החדרים למנהל (עבור המגירה בצד שמאל) ---
+# --- API: קבלת רשימת כל החדרים למנהל ---
 @app.route("/api/admin/rooms")
 @admin_required
 def admin_get_all_rooms():
