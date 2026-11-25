@@ -1,9 +1,8 @@
 import os
 import datetime
+import sqlite3
 from functools import wraps
 from flask import Flask, request, jsonify, session, render_template_string
-from pymongo import MongoClient
-from bson.objectid import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
 import cloudinary
 import cloudinary.uploader
@@ -11,17 +10,11 @@ import cloudinary.uploader
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "super-secret-key-change-in-render-998877")
 
-# --- הגדרות אדמין (מומלץ להגדיר גם במשתני הסביבה ב-OnRender) ---
+# --- הגדרות אדמין ---
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "123456")
 
-# --- חיבור ל-MongoDB Atlas ---
-MONGO_URI = os.environ.get("MONGO_URI")
-client = MongoClient(MONGO_URI) if MONGO_URI else None
-db = client["intel_search_db"] if client is not None else None
-
 # --- חיבור ל-Cloudinary ---
-# הקוד תומך ב-CLOUDINARY_URL או במפתחות נפרדים
 if os.environ.get("CLOUDINARY_URL"):
     cloudinary.config(secure=True)
 else:
@@ -32,20 +25,84 @@ else:
         secure=True
     )
 
-# יצירת משתמש אדמין אוטומטית בהפעלה הראשונה אם לא קיים
-def init_admin():
-    if db is not None:
-        if not db.users.find_one({"username": ADMIN_USERNAME}):
-            db.users.insert_one({
-                "username": ADMIN_USERNAME,
-                "display_name": "מנהל המערכת",
-                "password": generate_password_hash(ADMIN_PASSWORD),
-                "avatar": "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
-                "is_admin": True
-            })
+# --- הגדרת מסד הנתונים המקומי SQLite ---
+DB_FILE = "database.db"
 
-if db is not None:
-    init_admin()
+def get_db():
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # טבלת משתמשים
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            display_name TEXT,
+            password TEXT,
+            avatar TEXT,
+            is_admin INTEGER
+        )
+    ''')
+    
+    # טבלת חדרים
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS rooms (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            city TEXT,
+            street TEXT,
+            house_num TEXT
+        )
+    ''')
+    
+    # טבלת פריטים/הודעות בתוך חדרים
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS room_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            room_id INTEGER,
+            text TEXT,
+            image TEXT,
+            created_at TEXT,
+            FOREIGN KEY(room_id) REFERENCES rooms(id)
+        )
+    ''')
+    
+    # טבלת צ'אט הצעות מול האדמין
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS suggestions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            thread_user TEXT,
+            sender TEXT,
+            sender_display TEXT,
+            sender_is_admin INTEGER,
+            text TEXT,
+            image TEXT,
+            created_at TEXT
+        )
+    ''')
+    conn.commit()
+
+    # יצירת אדמין ברירת מחדל אם אינו קיים
+    admin = cursor.execute("SELECT * FROM users WHERE username = ?", (ADMIN_USERNAME,)).fetchone()
+    if not admin:
+        cursor.execute('''
+            INSERT INTO users (username, display_name, password, avatar, is_admin)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            ADMIN_USERNAME,
+            "מנהל המערכת",
+            generate_password_hash(ADMIN_PASSWORD),
+            "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+            1
+        ))
+        conn.commit()
+    conn.close()
+
+init_db()
 
 # --- דקורטורים לאבטחה ---
 def login_required(f):
@@ -64,7 +121,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated
 
-# --- תבנית ה-HTML, CSS ו-JS של האתר ---
+# --- תבנית ה-HTML והעיצוב ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
@@ -74,323 +131,47 @@ HTML_TEMPLATE = """
     <title>מערכת חיפוש ומידע</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body {
-            background-color: #050505;
-            color: #ffffff;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-        }
-        /* רקע גלי מידע באנגלית */
-        #bg-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-            opacity: 0.35;
-            pointer-events: none;
-        }
-
-        /* מסך כניסה ראשי */
-        #landing-screen {
-            position: relative;
-            z-index: 10;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .btn-main-login {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: #fff;
-            padding: 18px 50px;
-            font-size: 1.4rem;
-            border-radius: 50px;
-            cursor: pointer;
-            backdrop-filter: blur(8px);
-            transition: all 0.3s ease;
-            box-shadow: 0 0 25px rgba(255,255,255,0.1);
-        }
-        .btn-main-login:hover {
-            background: #ffffff;
-            color: #000000;
-            box-shadow: 0 0 35px rgba(255,255,255,0.6);
-            transform: scale(1.05);
-        }
-
-        /* חלונית התחברות/הרשמה */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: #111;
-            border: 1px solid #333;
-            padding: 30px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 420px;
-            text-align: center;
-            position: relative;
-        }
+        body { background-color: #050505; color: #ffffff; overflow: hidden; height: 100vh; width: 100vw; }
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.35; pointer-events: none; }
+        #landing-screen { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .btn-main-login { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.4); color: #fff; padding: 18px 50px; font-size: 1.4rem; border-radius: 50px; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.3s ease; box-shadow: 0 0 25px rgba(255,255,255,0.1); }
+        .btn-main-login:hover { background: #ffffff; color: #000000; box-shadow: 0 0 35px rgba(255,255,255,0.6); transform: scale(1.05); }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); justify-content: center; align-items: center; }
+        .modal-content { background: #111; border: 1px solid #333; padding: 30px; border-radius: 16px; width: 90%; max-width: 420px; text-align: center; position: relative; }
         .modal-content h2 { margin-bottom: 20px; }
-        .modal-content input, .modal-content textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: 1px solid #333;
-            background: #1c1c1c;
-            color: #fff;
-            font-size: 1rem;
-        }
-        .btn-submit {
-            width: 100%;
-            padding: 12px;
-            margin-top: 15px;
-            background: #fff;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-        }
+        .modal-content input, .modal-content textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #333; background: #1c1c1c; color: #fff; font-size: 1rem; }
+        .btn-submit { width: 100%; padding: 12px; margin-top: 15px; background: #fff; color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; }
         .btn-submit:hover { background: #ddd; }
-        .close-btn {
-            position: absolute;
-            top: 12px; left: 15px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #888;
-        }
-
-        /* ממשק האתר הראשי לאחר התחברות */
-        #app-screen {
-            display: none;
-            position: relative;
-            z-index: 10;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        /* כפתור פלוס לאדמין למעלה */
-        #admin-add-room-btn {
-            display: none;
-            position: fixed;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background: #ffffff;
-            color: #000000;
-            font-size: 2rem;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(255,255,255,0.4);
-            z-index: 20;
-            transition: transform 0.2s;
-        }
+        .close-btn { position: absolute; top: 12px; left: 15px; font-size: 1.5rem; cursor: pointer; color: #888; }
+        #app-screen { display: none; position: relative; z-index: 10; height: 100vh; width: 100vw; }
+        #admin-add-room-btn { display: none; position: fixed; top: 25px; left: 50%; transform: translateX(-50%); width: 55px; height: 55px; border-radius: 50%; background: #ffffff; color: #000000; font-size: 2rem; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 0 20px rgba(255,255,255,0.4); z-index: 20; transition: transform 0.2s; }
         #admin-add-room-btn:hover { transform: translateX(-50%) scale(1.1); }
-
-        /* אזור החיפוש הלבן באמצע המסך */
-        .center-search-container {
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 650px;
-            text-align: center;
-        }
-        .search-box-wrapper {
-            display: flex;
-            background: #ffffff;
-            border-radius: 50px;
-            padding: 6px 10px;
-            box-shadow: 0 10px 40px rgba(255, 255, 255, 0.15);
-            align-items: center;
-        }
-        #main-search-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            background: transparent;
-            color: #000000;
-            font-size: 1.15rem;
-            padding: 12px 20px;
-        }
+        .center-search-container { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 650px; text-align: center; }
+        .search-box-wrapper { display: flex; background: #ffffff; border-radius: 50px; padding: 6px 10px; box-shadow: 0 10px 40px rgba(255, 255, 255, 0.15); align-items: center; }
+        #main-search-input { flex: 1; border: none; outline: none; background: transparent; color: #000000; font-size: 1.15rem; padding: 12px 20px; }
         #main-search-input::placeholder { color: #666; transition: opacity 0.3s; }
-        .search-btn {
-            background: #000000;
-            color: #ffffff;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 40px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .search-btn { background: #000000; color: #ffffff; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: bold; cursor: pointer; }
         .search-btn:hover { background: #222; }
-
-        /* תוצאות חיפוש מרובות (למשל חיפוש לפי רחוב) */
-        #search-results-list {
-            margin-top: 20px;
-            background: rgba(20, 20, 20, 0.95);
-            border: 1px solid #333;
-            border-radius: 14px;
-            max-height: 280px;
-            overflow-y: auto;
-            display: none;
-            text-align: right;
-        }
-        .result-item {
-            padding: 14px 20px;
-            border-bottom: 1px solid #2a2a2a;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        #search-results-list { margin-top: 20px; background: rgba(20, 20, 20, 0.95); border: 1px solid #333; border-radius: 14px; max-height: 280px; overflow-y: auto; display: none; text-align: right; }
+        .result-item { padding: 14px 20px; border-bottom: 1px solid #2a2a2a; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .result-item:hover { background: #252525; }
         .result-item:last-child { border-bottom: none; }
-
-        /* תצוגת חדר שנפתח */
-        #room-view-modal .modal-content {
-            max-width: 650px;
-            max-height: 85vh;
-            overflow-y: auto;
-            text-align: right;
-        }
-        .room-meta {
-            background: #1a1a1a;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            color: #bbb;
-        }
-        .room-feed-item {
-            background: #181818;
-            border: 1px solid #2c2c2c;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-        }
-        .room-feed-item img {
-            max-width: 100%;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-
-        /* פרופיל משתמש בצד שמאל למטה */
-        .profile-widget {
-            position: fixed;
-            bottom: 25px;
-            left: 25px;
-            background: rgba(20, 20, 20, 0.9);
-            border: 1px solid #333;
-            padding: 10px 16px;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            z-index: 20;
-            transition: border-color 0.2s;
-        }
+        #room-view-modal .modal-content { max-width: 650px; max-height: 85vh; overflow-y: auto; text-align: right; }
+        .room-meta { background: #1a1a1a; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; color: #bbb; }
+        .room-feed-item { background: #181818; border: 1px solid #2c2c2c; padding: 15px; border-radius: 10px; margin-bottom: 12px; }
+        .room-feed-item img { max-width: 100%; border-radius: 8px; margin-top: 10px; }
+        .profile-widget { position: fixed; bottom: 25px; left: 25px; background: rgba(20, 20, 20, 0.9); border: 1px solid #333; padding: 10px 16px; border-radius: 50px; display: flex; align-items: center; gap: 12px; cursor: pointer; z-index: 20; transition: border-color 0.2s; }
         .profile-widget:hover { border-color: #fff; }
-        .profile-widget img {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #555;
-        }
-
-        /* כפתור הצעות בצד ימין */
-        .suggestions-side-btn {
-            position: fixed;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #ffffff;
-            color: #000000;
-            padding: 16px 12px;
-            border-radius: 12px 0 0 12px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 25;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            box-shadow: -4px 0 20px rgba(255,255,255,0.2);
-        }
-
-        /* חלונית צד להצעות / צ'אט */
-        #suggestions-drawer {
-            position: fixed;
-            right: -380px;
-            top: 0;
-            width: 360px;
-            max-width: 90vw;
-            height: 100vh;
-            background: #111111;
-            border-left: 1px solid #333;
-            z-index: 50;
-            transition: right 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
+        .profile-widget img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid #555; }
+        .suggestions-side-btn { position: fixed; right: 0; top: 50%; transform: translateY(-50%); background: #ffffff; color: #000000; padding: 16px 12px; border-radius: 12px 0 0 12px; font-weight: bold; cursor: pointer; z-index: 25; writing-mode: vertical-rl; text-orientation: mixed; box-shadow: -4px 0 20px rgba(255,255,255,0.2); }
+        #suggestions-drawer { position: fixed; right: -380px; top: 0; width: 360px; max-width: 90vw; height: 100vh; background: #111111; border-left: 1px solid #333; z-index: 50; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         #suggestions-drawer.open { right: 0; }
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            margin: 15px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .msg-bubble {
-            background: #1f1f1f;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            max-width: 85%;
-        }
-        .msg-bubble.admin {
-            background: #2b3a4a;
-            align-self: flex-start;
-        }
-        .msg-bubble.user {
-            background: #262626;
-            align-self: flex-end;
-        }
-        .msg-bubble img {
-            max-width: 100%;
-            border-radius: 6px;
-            margin-top: 6px;
-        }
-        .admin-chat-user-item {
-            padding: 12px;
-            background: #1b1b1b;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            border: 1px solid #2c2c2c;
-        }
+        .chat-messages { flex: 1; overflow-y: auto; margin: 15px 0; display: flex; flex-direction: column; gap: 10px; }
+        .msg-bubble { background: #1f1f1f; padding: 10px 14px; border-radius: 12px; font-size: 0.95rem; max-width: 85%; }
+        .msg-bubble.admin { background: #2b3a4a; align-self: flex-start; }
+        .msg-bubble.user { background: #262626; align-self: flex-end; }
+        .msg-bubble img { max-width: 100%; border-radius: 6px; margin-top: 6px; }
+        .admin-chat-user-item { padding: 12px; background: #1b1b1b; border-radius: 8px; margin-bottom: 8px; cursor: pointer; border: 1px solid #2c2c2c; }
         .admin-chat-user-item:hover { border-color: #fff; }
     </style>
 </head>
@@ -398,12 +179,10 @@ HTML_TEMPLATE = """
 
     <canvas id="bg-canvas"></canvas>
 
-    <!-- מסך 1: כפתור התחברות ראשי -->
     <div id="landing-screen">
         <button class="btn-main-login" onclick="openLoginModal()">התחבר למערכת</button>
     </div>
 
-    <!-- מודאל התחברות / הרשמה -->
     <div id="login-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('login-modal')">&times;</span>
@@ -417,12 +196,9 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- מסך 2: המערכת הפנימית -->
     <div id="app-screen">
-        <!-- כפתור פלוס לאדמין בלבד -->
         <button id="admin-add-room-btn" title="צור חדר חדש" onclick="openModal('create-room-modal')">+</button>
 
-        <!-- שורת חיפוש לבנה באמצע המסך -->
         <div class="center-search-container">
             <div class="search-box-wrapper">
                 <input type="text" id="main-search-input" placeholder="חיפוש לפי שם פרטי ושם משפחה..." onkeyup="if(event.key==='Enter') performSearch()">
@@ -431,7 +207,6 @@ HTML_TEMPLATE = """
             <div id="search-results-list"></div>
         </div>
 
-        <!-- פרופיל משתמש למטה בצד -->
         <div class="profile-widget" onclick="openModal('edit-profile-modal')">
             <img id="user-avatar-img" src="" alt="Profile">
             <div>
@@ -440,20 +215,16 @@ HTML_TEMPLATE = """
             </div>
         </div>
 
-        <!-- כפתור צדדי להצעות -->
         <div class="suggestions-side-btn" onclick="toggleSuggestionsDrawer()">הצעות</div>
 
-        <!-- מגירת צ'אט הצעות -->
         <div id="suggestions-drawer">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px;">
                 <h3 id="drawer-title">הצעות ופניות</h3>
                 <span style="cursor: pointer; font-size: 1.4rem;" onclick="toggleSuggestionsDrawer()">&times;</span>
             </div>
 
-            <!-- רשימת שיחות (מוצג רק לאדמין) -->
             <div id="admin-threads-list" style="display:none; overflow-y:auto; flex:1; margin-top:10px;"></div>
 
-            <!-- אזור הצ'אט הפעיל -->
             <div id="chat-area" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
                 <button id="back-to-threads-btn" style="display:none; background:#222; color:#fff; border:none; padding:6px; border-radius:6px; margin-top:8px; cursor:pointer;" onclick="showAdminThreads()">← חזור לכל ההצעות</button>
                 <div class="chat-messages" id="chat-messages-box"></div>
@@ -468,7 +239,6 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- מודאל יצירת חדר חדש (אדמין בלבד) -->
     <div id="create-room-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('create-room-modal')">&times;</span>
@@ -484,7 +254,6 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- מודאל צפייה בחדר (+ הוספת תוכן לאדמין) -->
     <div id="room-view-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('room-view-modal')">&times;</span>
@@ -492,7 +261,6 @@ HTML_TEMPLATE = """
             <div class="room-meta" id="view-room-meta"></div>
             <div id="view-room-items"></div>
 
-            <!-- כפתור פלוס פנימי בתוך החדר לאדמין להוספת עוד תמונות/הודעות -->
             <div id="admin-add-to-room-section" style="display:none; border-top:1px solid #333; margin-top:20px; padding-top:15px;">
                 <h4>+ הוסף מידע או תמונה לחדר זה</h4>
                 <textarea id="append-room-text" rows="2" placeholder="הודעה נוספת..."></textarea>
@@ -502,7 +270,6 @@ HTML_TEMPLATE = """
         </div>
     </div>
 
-    <!-- מודאל עריכת פרופיל -->
     <div id="edit-profile-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('edit-profile-modal')">&times;</span>
@@ -516,7 +283,6 @@ HTML_TEMPLATE = """
     </div>
 
     <script>
-        // --- 1. אנימציית גלים של שמות ורחובות באנגלית ברקע ---
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -559,7 +325,6 @@ HTML_TEMPLATE = """
         }
         drawWaves();
 
-        // --- 2. החלפת טקסט בשורת החיפוש הלבנה ---
         const placeholders = [
             "חיפוש לפי שם פרטי ושם משפחה...",
             "חיפוש לפי רחוב בעיר מסוימת (למשל: תל אביב בן גוריון)...",
@@ -572,7 +337,6 @@ HTML_TEMPLATE = """
             if (input) input.placeholder = placeholders[pIndex];
         }, 3200);
 
-        // --- 3. ניהול מצב משתמש והתחברות ---
         let currentUser = null;
         let isRegisterMode = false;
         let currentOpenRoomId = null;
@@ -631,7 +395,6 @@ HTML_TEMPLATE = """
             location.reload();
         }
 
-        // --- 4. אלגוריתם חיפוש וחדרים ---
         async function performSearch() {
             const query = document.getElementById('main-search-input').value.trim();
             if (!query) return;
@@ -649,7 +412,7 @@ HTML_TEMPLATE = """
 
             if (data.results.length === 1) {
                 listEl.style.display = 'none';
-                openRoom(data.results[0]._id);
+                openRoom(data.results[0].id);
             } else {
                 listEl.style.display = 'block';
                 data.results.forEach(room => {
@@ -658,11 +421,11 @@ HTML_TEMPLATE = """
                     div.innerHTML = `
                         <div>
                             <strong>${room.name}</strong>
-                            <div style="font-size:0.85rem; color:#aaa;">${room.city} ${room.street} ${room.house_num}</div>
+                            <div style="font-size:0.85rem; color:#aaa;">${room.city || ''} ${room.street || ''} ${room.house_num || ''}</div>
                         </div>
                         <span style="color:#00ffaa; font-size:0.85rem;">פתח חדר ←</span>
                     `;
-                    div.onclick = () => openRoom(room._id);
+                    div.onclick = () => openRoom(room.id);
                     listEl.appendChild(div);
                 });
             }
@@ -730,7 +493,6 @@ HTML_TEMPLATE = """
             openRoom(currentOpenRoomId);
         }
 
-        // --- 5. עריכת פרופיל ---
         async function updateProfile() {
             const formData = new FormData();
             formData.append('display_name', document.getElementById('edit-display-name').value);
@@ -745,7 +507,6 @@ HTML_TEMPLATE = """
             }
         }
 
-        // --- 6. מערכת הצעות וצ'אט פרטי מול האדמין ---
         function toggleSuggestionsDrawer() {
             const drawer = document.getElementById('suggestions-drawer');
             drawer.classList.toggle('open');
@@ -825,14 +586,13 @@ HTML_TEMPLATE = """
             loadChatMessages(activeChatTargetUser);
         }
 
-        // בדיקת התחברות אוטומטית בטעינה
         loadUserSession();
     </script>
 </body>
 </html>
 """
 
-# --- נתיבי API (Backend) ---
+# --- נתיבי API (Backend עם SQLite) ---
 
 @app.route("/")
 def index():
@@ -842,8 +602,20 @@ def index():
 def get_me():
     if "username" not in session:
         return jsonify({"logged_in": False})
-    user = db.users.find_one({"username": session["username"]}, {"_id": 0, "password": 0})
-    return jsonify({"logged_in": True, "user": user})
+    conn = get_db()
+    user = conn.execute("SELECT username, display_name, avatar, is_admin FROM users WHERE username = ?", (session["username"],)).fetchone()
+    conn.close()
+    if not user:
+        return jsonify({"logged_in": False})
+    return jsonify({
+        "logged_in": True,
+        "user": {
+            "username": user["username"],
+            "display_name": user["display_name"],
+            "avatar": user["avatar"],
+            "is_admin": bool(user["is_admin"])
+        }
+    })
 
 @app.route("/api/register", methods=["POST"])
 def register():
@@ -852,16 +624,26 @@ def register():
     password = data.get("password", "").strip()
     if not username or not password:
         return jsonify({"error": "חסרים פרטים"}), 400
-    if db.users.find_one({"username": username}):
+
+    conn = get_db()
+    existing = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    if existing:
+        conn.close()
         return jsonify({"error": "שם המשתמש כבר תפוס"}), 400
 
-    db.users.insert_one({
-        "username": username,
-        "display_name": username,
-        "password": generate_password_hash(password),
-        "avatar": "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
-        "is_admin": False
-    })
+    conn.execute('''
+        INSERT INTO users (username, display_name, password, avatar, is_admin)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (
+        username,
+        username,
+        generate_password_hash(password),
+        "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+        0
+    ))
+    conn.commit()
+    conn.close()
+
     session["username"] = username
     session["is_admin"] = False
     return jsonify({"success": True})
@@ -871,12 +653,16 @@ def login():
     data = request.json
     username = data.get("username", "").strip()
     password = data.get("password", "").strip()
-    user = db.users.find_one({"username": username})
+
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    conn.close()
+
     if not user or not check_password_hash(user["password"], password):
         return jsonify({"error": "שם משתמש או סיסמה שגויים"}), 401
 
     session["username"] = user["username"]
-    session["is_admin"] = user.get("is_admin", False)
+    session["is_admin"] = bool(user["is_admin"])
     return jsonify({"success": True})
 
 @app.route("/api/logout", methods=["POST"])
@@ -897,10 +683,20 @@ def update_profile():
         updates["avatar"] = upload_res["secure_url"]
 
     if updates:
-        db.users.update_one({"username": session["username"]}, {"$set": updates})
-    return jsonify({"success": True})
+        conn = get_db()
+        if "display_name" in updates and "avatar" in updates:
+            conn.execute("UPDATE users SET display_name = ?, avatar = ? WHERE username = ?", 
+                         (updates["display_name"], updates["avatar"], session["username"]))
+        elif "display_name" in updates:
+            conn.execute("UPDATE users SET display_name = ? WHERE username = ?", 
+                         (updates["display_name"], session["username"]))
+        elif "avatar" in updates:
+            conn.execute("UPDATE users SET avatar = ? WHERE username = ?", 
+                         (updates["avatar"], session["username"]))
+        conn.commit()
+        conn.close()
 
-# --- יצירת חדרים ואלגוריתם החיפוש ---
+    return jsonify({"success": True})
 
 @app.route("/api/rooms", methods=["POST"])
 @admin_required
@@ -919,33 +715,46 @@ def create_room():
         upload_res = cloudinary.uploader.upload(request.files["image"])
         image_url = upload_res["secure_url"]
 
-    initial_items = []
-    if text or image_url:
-        initial_items.append({
-            "text": text,
-            "image": image_url,
-            "created_at": datetime.datetime.utcnow().isoformat()
-        })
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO rooms (name, city, street, house_num)
+        VALUES (?, ?, ?, ?)
+    ''', (name, city, street, house_num))
+    room_id = cursor.lastrowid
 
-    db.rooms.insert_one({
-        "name": name,
-        "city": city,
-        "street": street,
-        "house_num": house_num,
-        "items": initial_items
-    })
+    if text or image_url:
+        cursor.execute('''
+            INSERT INTO room_items (room_id, text, image, created_at)
+            VALUES (?, ?, ?, ?)
+        ''', (room_id, text, image_url, datetime.datetime.utcnow().isoformat()))
+
+    conn.commit()
+    conn.close()
     return jsonify({"success": True})
 
-@app.route("/api/rooms/<room_id>")
+@app.route("/api/rooms/<int:room_id>")
 @login_required
 def get_room(room_id):
-    room = db.rooms.find_one({"_id": ObjectId(room_id)})
+    conn = get_db()
+    room = conn.execute("SELECT * FROM rooms WHERE id = ?", (room_id,)).fetchone()
     if not room:
+        conn.close()
         return jsonify({"error": "חדר לא נמצא"}), 404
-    room["_id"] = str(room["_id"])
-    return jsonify(room)
 
-@app.route("/api/rooms/<room_id>/items", methods=["POST"])
+    items = conn.execute("SELECT text, image, created_at FROM room_items WHERE room_id = ?", (room_id,)).fetchall()
+    conn.close()
+
+    return jsonify({
+        "id": room["id"],
+        "name": room["name"],
+        "city": room["city"],
+        "street": room["street"],
+        "house_num": room["house_num"],
+        "items": [dict(item) for item in items]
+    })
+
+@app.route("/api/rooms/<int:room_id>/items", methods=["POST"])
 @admin_required
 def add_room_item(room_id):
     text = request.form.get("text", "").strip()
@@ -955,14 +764,14 @@ def add_room_item(room_id):
         image_url = upload_res["secure_url"]
 
     if text or image_url:
-        db.rooms.update_one(
-            {"_id": ObjectId(room_id)},
-            {"$push": {"items": {
-                "text": text,
-                "image": image_url,
-                "created_at": datetime.datetime.utcnow().isoformat()
-            }}}
-        )
+        conn = get_db()
+        conn.execute('''
+            INSERT INTO room_items (room_id, text, image, created_at)
+            VALUES (?, ?, ?, ?)
+        ''', (room_id, text, image_url, datetime.datetime.utcnow().isoformat()))
+        conn.commit()
+        conn.close()
+
     return jsonify({"success": True})
 
 @app.route("/api/search")
@@ -972,29 +781,36 @@ def search_rooms():
     if not q:
         return jsonify({"results": []})
 
-    # פירוק שאילתת החיפוש למילים כדי למצוא התאמות גם כשמחפשים עיר + רחוב + מספר
     tokens = [t for t in q.split() if t]
-    all_rooms = list(db.rooms.find())
+    conn = get_db()
+    rooms = conn.execute("SELECT * FROM rooms").fetchall()
+    
     matched = []
+    for room in rooms:
+        room_id = room["id"]
+        items = conn.execute("SELECT text FROM room_items WHERE room_id = ?", (room_id,)).fetchall()
+        items_text = " ".join([item["text"] for item in items if item["text"]])
+        
+        searchable_blob = f"{room['name'] or ''} {room['city'] or ''} {room['street'] or ''} {room['house_num'] or ''} {items_text}".lower()
 
-    for room in all_rooms:
-        # איחוד כל המידע של החדר לטקסט חיפוש אחד
-        items_text = " ".join([item.get("text", "") for item in room.get("items", [])])
-        searchable_blob = f"{room.get('name', '')} {room.get('city', '')} {room.get('street', '')} {room.get('house_num', '')} {items_text}".lower()
-
-        # בדיקה שכל מילות החיפוש מופיעות במידע של החדר
         if all(token.lower() in searchable_blob for token in tokens):
-            room["_id"] = str(room["_id"])
-            matched.append(room)
-
+            matched.append({
+                "id": room["id"],
+                "name": room["name"],
+                "city": room["city"],
+                "street": room["street"],
+                "house_num": room["house_num"]
+            })
+    conn.close()
     return jsonify({"results": matched})
-
-# --- מערכת צ'אט הצעות ---
 
 @app.route("/api/suggestions/threads")
 @admin_required
 def get_suggestion_threads():
-    users = db.suggestions.distinct("thread_user")
+    conn = get_db()
+    rows = conn.execute("SELECT DISTINCT thread_user FROM suggestions").fetchall()
+    conn.close()
+    users = [row["thread_user"] for row in rows]
     return jsonify({"threads": users})
 
 @app.route("/api/suggestions/<target_user>")
@@ -1003,7 +819,19 @@ def get_suggestions(target_user):
     if not session.get("is_admin") and session["username"] != target_user:
         return jsonify({"error": "אין הרשאה"}), 403
 
-    msgs = list(db.suggestions.find({"thread_user": target_user}, {"_id": 0}))
+    conn = get_db()
+    rows = conn.execute("SELECT sender, sender_display, sender_is_admin, text, image, created_at FROM suggestions WHERE thread_user = ?", (target_user,)).fetchall()
+    conn.close()
+
+    msgs = [{
+        "sender": r["sender"],
+        "sender_display": r["sender_display"],
+        "sender_is_admin": bool(r["sender_is_admin"]),
+        "text": r["text"],
+        "image": r["image"],
+        "created_at": r["created_at"]
+    } for r in rows]
+
     return jsonify({"messages": msgs})
 
 @app.route("/api/suggestions/send", methods=["POST"])
@@ -1019,16 +847,24 @@ def send_suggestion():
         upload_res = cloudinary.uploader.upload(request.files["image"])
         image_url = upload_res["secure_url"]
 
-    user_doc = db.users.find_one({"username": session["username"]})
-    db.suggestions.insert_one({
-        "thread_user": target_user,
-        "sender": session["username"],
-        "sender_display": user_doc.get("display_name", session["username"]),
-        "sender_is_admin": session.get("is_admin", False),
-        "text": text,
-        "image": image_url,
-        "created_at": datetime.datetime.utcnow().isoformat()
-    })
+    conn = get_db()
+    user = conn.execute("SELECT display_name FROM users WHERE username = ?", (session["username"],)).fetchone()
+    display_name = user["display_name"] if user else session["username"]
+
+    conn.execute('''
+        INSERT INTO suggestions (thread_user, sender, sender_display, sender_is_admin, text, image, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (
+        target_user,
+        session["username"],
+        display_name,
+        int(session.get("is_admin", False)),
+        text,
+        image_url,
+        datetime.datetime.utcnow().isoformat()
+    ))
+    conn.commit()
+    conn.close()
     return jsonify({"success": True})
 
 if __name__ == "__main__":
