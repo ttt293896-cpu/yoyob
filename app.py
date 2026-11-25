@@ -12,25 +12,28 @@ import io
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "super-secret-key-change-in-render-998877")
 
-# --- הגדרות אדמין ---
+# --- הגדרות אדמין מעודכנות לבקשתך ---
 ADMIN_USERNAME = "meir_pro"
 ADMIN_PASSWORD = "qwert1234t711"
 
-# --- חיבור ישיר ומאובטח שמתעלם לחלוטין מבעיות בשורות הטקסט של Render ---
-cloudinary.config(
-    cloud_name="tgu8n7hi",
-    api_key="68973154235792",
-    api_secret="ZUwrOBz_MMfsTbvCJWZGx2AxwbE",
-    secure=True
-)
+# --- חיבור ל-Cloudinary ---
+if os.environ.get("CLOUDINARY_URL"):
+    cloudinary.config(secure=True)
+else:
+    cloudinary.config(
+        cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+        api_key=os.environ.get("CLOUDINARY_API_KEY"),
+        api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+        secure=True
+    )
 
-# --- פונקציית כיווץ תמונות אוטומטית ובטוחה ---
+# --- פונקציית כיווץ תמונות אוטומטית ---
 def compress_image(image_file):
     try:
-        image_file.seek(0)
         img = Image.open(image_file)
         if img.mode in ("RGBA", "P"):
             img = img.convert("RGB")
+        # הקטנת ממדים למקסימום 1200x1200 פיקסלים לשמירה על חדות וצמצום משקל
         img.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
         
         buffer = io.BytesIO()
@@ -39,13 +42,10 @@ def compress_image(image_file):
         return buffer
     except Exception as e:
         print(f"Error compressing image: {e}")
-        try:
-            image_file.seek(0)
-            return image_file
-        except:
-            return None
+        image_file.seek(0)
+        return image_file
 
-# --- הגדרת מסד הנתונים SQLite ---
+# --- הגדרת מסד הנתונים המקומי SQLite ---
 DB_FILE = "database.db"
 
 def get_db():
@@ -57,6 +57,7 @@ def init_db():
     conn = get_db()
     cursor = conn.cursor()
     
+    # טבלת משתמשים
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             username TEXT PRIMARY KEY,
@@ -67,6 +68,7 @@ def init_db():
         )
     ''')
     
+    # טבלת חדרים
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS rooms (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -77,6 +79,7 @@ def init_db():
         )
     ''')
     
+    # טבלת פריטים/הודעות בתוך חדרים
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS room_items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -88,6 +91,7 @@ def init_db():
         )
     ''')
     
+    # טבלת צ'אט הצעות מול האדמין
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS suggestions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -102,6 +106,7 @@ def init_db():
     ''')
     conn.commit()
 
+    # יצירת אדמין ברירת מחדל עם הפרטים שביקשת
     admin = cursor.execute("SELECT * FROM users WHERE username = ?", (ADMIN_USERNAME,)).fetchone()
     if not admin:
         cursor.execute('''
@@ -165,41 +170,28 @@ HTML_TEMPLATE = """
         .btn-submit:hover { background: #ddd; }
         .close-btn { position: absolute; top: 12px; left: 15px; font-size: 1.5rem; cursor: pointer; color: #888; }
         #app-screen { display: none; position: relative; z-index: 10; height: 100vh; width: 100vw; }
-        
         #admin-add-room-btn { display: none; position: fixed; top: 25px; left: 50%; transform: translateX(-50%); width: 55px; height: 55px; border-radius: 50%; background: #ffffff; color: #000000; font-size: 2rem; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 0 20px rgba(255,255,255,0.4); z-index: 20; transition: transform 0.2s; }
         #admin-add-room-btn:hover { transform: translateX(-50%) scale(1.1); }
-        
         .center-search-container { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 650px; text-align: center; }
         .search-box-wrapper { display: flex; background: #ffffff; border-radius: 50px; padding: 6px 10px; box-shadow: 0 10px 40px rgba(255, 255, 255, 0.15); align-items: center; }
         #main-search-input { flex: 1; border: none; outline: none; background: transparent; color: #000000; font-size: 1.15rem; padding: 12px 20px; }
         #main-search-input::placeholder { color: #666; transition: opacity 0.3s; }
         .search-btn { background: #000000; color: #ffffff; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: bold; cursor: pointer; }
         .search-btn:hover { background: #222; }
-        
         #search-results-list { margin-top: 20px; background: rgba(20, 20, 20, 0.95); border: 1px solid #333; border-radius: 14px; max-height: 280px; overflow-y: auto; display: none; text-align: right; }
         .result-item { padding: 14px 20px; border-bottom: 1px solid #2a2a2a; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .result-item:hover { background: #252525; }
         .result-item:last-child { border-bottom: none; }
-        
         #room-view-modal .modal-content { max-width: 650px; max-height: 85vh; overflow-y: auto; text-align: right; }
         .room-meta { background: #1a1a1a; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; color: #bbb; }
         .room-feed-item { background: #181818; border: 1px solid #2c2c2c; padding: 15px; border-radius: 10px; margin-bottom: 12px; }
         .room-feed-item img { max-width: 100%; border-radius: 8px; margin-top: 10px; }
-        
         .profile-widget { position: fixed; bottom: 25px; left: 25px; background: rgba(20, 20, 20, 0.9); border: 1px solid #333; padding: 10px 16px; border-radius: 50px; display: flex; align-items: center; gap: 12px; cursor: pointer; z-index: 20; transition: border-color 0.2s; }
         .profile-widget:hover { border-color: #fff; }
         .profile-widget img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid #555; }
-        
         .suggestions-side-btn { position: fixed; right: 0; top: 50%; transform: translateY(-50%); background: #ffffff; color: #000000; padding: 16px 12px; border-radius: 12px 0 0 12px; font-weight: bold; cursor: pointer; z-index: 25; writing-mode: vertical-rl; text-orientation: mixed; box-shadow: -4px 0 20px rgba(255,255,255,0.2); }
         #suggestions-drawer { position: fixed; right: -380px; top: 0; width: 360px; max-width: 90vw; height: 100vh; background: #111111; border-left: 1px solid #333; z-index: 50; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         #suggestions-drawer.open { right: 0; }
-        
-        .admin-rooms-side-btn { display: none; position: fixed; left: 0; top: 50%; transform: translateY(-50%); background: #00ffaa; color: #000000; padding: 16px 12px; border-radius: 0 12px 12px 0; font-weight: bold; cursor: pointer; z-index: 25; writing-mode: vertical-rl; text-orientation: mixed; box-shadow: 4px 0 20px rgba(0,255,170,0.2); }
-        #admin-rooms-drawer { position: fixed; left: -380px; top: 0; width: 360px; max-width: 90vw; height: 100vh; background: #111111; border-right: 1px solid #333; z-index: 50; transition: left 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
-        #admin-rooms-drawer.open { left: 0; }
-        .admin-room-item-row { padding: 12px; background: #1b1b1b; border-radius: 8px; margin-bottom: 8px; cursor: pointer; border: 1px solid #2c2c2c; text-align: right; }
-        .admin-room-item-row:hover { border-color: #00ffaa; }
-
         .chat-messages { flex: 1; overflow-y: auto; margin: 15px 0; display: flex; flex-direction: column; gap: 10px; }
         .msg-bubble { background: #1f1f1f; padding: 10px 14px; border-radius: 12px; font-size: 0.95rem; max-width: 85%; }
         .msg-bubble.admin { background: #2b3a4a; align-self: flex-start; }
@@ -208,6 +200,7 @@ HTML_TEMPLATE = """
         .admin-chat-user-item { padding: 12px; background: #1b1b1b; border-radius: 8px; margin-bottom: 8px; cursor: pointer; border: 1px solid #2c2c2c; }
         .admin-chat-user-item:hover { border-color: #fff; }
         
+        /* עיצוב פס התקדמות העלאה */
         .progress-wrapper { display: none; margin-top: 12px; width: 100%; text-align: right; }
         .progress-bar-container { width: 100%; background: #222; border-radius: 8px; height: 10px; overflow: hidden; border: 1px solid #444; }
         .progress-bar-fill { width: 0%; height: 100%; background: #00ffaa; transition: width 0.1s linear; }
@@ -237,17 +230,6 @@ HTML_TEMPLATE = """
 
     <div id="app-screen">
         <button id="admin-add-room-btn" title="צור חדר חדש" onclick="openModal('create-room-modal')">+</button>
-
-        <div class="admin-rooms-side-btn" id="admin-rooms-toggle-btn" onclick="toggleAdminRoomsDrawer()">ניהול חדרים</div>
-
-        <div id="admin-rooms-drawer">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px;">
-                <h3>ניהול ועריכת חדרים</h3>
-                <span style="cursor: pointer; font-size: 1.4rem;" onclick="toggleAdminRoomsDrawer()">&times;</span>
-            </div>
-            <input type="text" id="admin-rooms-search" placeholder="חפש חדר ברשימה..." oninput="filterAdminRoomsList()" style="width:100%; padding:10px; margin-top:12px; border-radius:8px; border:1px solid #333; background:#1c1c1c; color:#fff;">
-            <div id="admin-rooms-list" style="overflow-y:auto; flex:1; margin-top:10px; display:flex; flex-direction:column; gap:8px;"></div>
-        </div>
 
         <div class="center-search-container">
             <div class="search-box-wrapper">
@@ -301,6 +283,7 @@ HTML_TEMPLATE = """
             <label style="display:block; text-align:right; font-size:0.85rem; color:#aaa; margin-top:8px;">העלאת תמונה לחדר:</label>
             <input type="file" id="room-image" accept="image/*">
             
+            <!-- פס התקדמות להעלאה -->
             <div id="create-room-progress" class="progress-wrapper">
                 <div class="progress-bar-container">
                     <div id="create-room-progress-fill" class="progress-bar-fill"></div>
@@ -320,11 +303,11 @@ HTML_TEMPLATE = """
             <span class="close-btn" onclick="closeModal('room-view-modal')">&times;</span>
             <h2 id="view-room-title">שם החדר</h2>
             <div class="room-meta" id="view-room-meta"></div>
-            <div id="view-room-items" style="max-height: 40vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;"></div>
+            <div id="view-room-items"></div>
 
             <div id="admin-add-to-room-section" style="display:none; border-top:1px solid #333; margin-top:20px; padding-top:15px;">
-                <h4 style="color:#00ffaa; margin-bottom:8px;">+ הוסף הודעה או תמונה לחדר (עריכה)</h4>
-                <textarea id="append-room-text" rows="2" placeholder="הודעה חדשה לעדכון החדר..."></textarea>
+                <h4>+ הוסף מידע או תמונה לחדר זה</h4>
+                <textarea id="append-room-text" rows="2" placeholder="הודעה נוספת..."></textarea>
                 <input type="file" id="append-room-image" accept="image/*">
                 
                 <div id="append-room-progress" class="progress-wrapper">
@@ -413,7 +396,6 @@ HTML_TEMPLATE = """
         let isRegisterMode = false;
         let currentOpenRoomId = null;
         let activeChatTargetUser = null;
-        let allRoomsCache = [];
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -457,10 +439,8 @@ HTML_TEMPLATE = """
 
                 if (currentUser.is_admin) {
                     document.getElementById('admin-add-room-btn').style.display = 'block';
-                    document.getElementById('admin-rooms-toggle-btn').style.display = 'block';
                 } else {
                     document.getElementById('admin-add-room-btn').style.display = 'none';
-                    document.getElementById('admin-rooms-toggle-btn').style.display = 'none';
                 }
             }
         }
@@ -468,55 +448,6 @@ HTML_TEMPLATE = """
         async function logout() {
             await fetch('/api/logout', { method: 'POST' });
             location.reload();
-        }
-
-        async function toggleAdminRoomsDrawer() {
-            const drawer = document.getElementById('admin-rooms-drawer');
-            drawer.classList.toggle('open');
-            if (drawer.classList.contains('open')) {
-                await fetchAllAdminRooms();
-            }
-        }
-
-        async function fetchAllAdminRooms() {
-            const res = await fetch('/api/admin/rooms');
-            const data = await res.json();
-            allRoomsCache = data.rooms || [];
-            renderAdminRoomsList(allRoomsCache);
-        }
-
-        function renderAdminRoomsList(rooms) {
-            const listEl = document.getElementById('admin-rooms-list');
-            listEl.innerHTML = '';
-            if (rooms.length === 0) {
-                listEl.innerHTML = '<p style="color:#777; text-align:center; margin-top:20px;">אין חדרים במערכת.</p>';
-                return;
-            }
-            rooms.forEach(room => {
-                const div = document.createElement('div');
-                div.className = 'admin-room-item-row';
-                div.innerHTML = `
-                    <strong>${room.name}</strong>
-                    <div style="font-size:0.8rem; color:#aaa;">${room.city || ''} ${room.street || ''} ${room.house_num || ''}</div>
-                `;
-                div.onclick = () => {
-                    openRoom(room.id);
-                };
-                listEl.appendChild(div);
-            });
-        }
-
-        function filterAdminRoomsList() {
-            const query = document.getElementById('admin-rooms-search').value.toLowerCase().trim();
-            if (!query) {
-                renderAdminRoomsList(allRoomsCache);
-                return;
-            }
-            const filtered = allRoomsCache.filter(r => {
-                const blob = `${r.name} ${r.city} ${r.street} ${r.house_num}`.toLowerCase();
-                return blob.includes(query);
-            });
-            renderAdminRoomsList(filtered);
         }
 
         async function performSearch() {
@@ -577,12 +508,11 @@ HTML_TEMPLATE = """
 
             if (currentUser && currentUser.is_admin) {
                 document.getElementById('admin-add-to-room-section').style.display = 'block';
-            } else {
-                document.getElementById('admin-add-to-room-section').style.display = 'none';
             }
             openModal('room-view-modal');
         }
 
+        // --- פונקציית העלאה עם מעקב התקדמות (XHR) ---
         function uploadWithProgress(url, formData, progressBoxId, fillId, pctId, timeId, submitBtnId, onSuccess, onError) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', url, true);
@@ -607,7 +537,7 @@ HTML_TEMPLATE = """
 
                     const elapsedTime = (Date.now() - startTime) / 1000;
                     if (elapsedTime > 0.3 && percent < 100) {
-                        const speed = e.loaded / elapsedTime;
+                        const speed = e.loaded / elapsedTime; // bytes per second
                         const remainingBytes = e.total - e.loaded;
                         const remainingSeconds = Math.round(remainingBytes / speed);
                         timeEl.innerText = `נותרו עוד כ-${remainingSeconds} שניות`;
@@ -800,7 +730,7 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# --- נתיבי API (Backend) ---
+# --- נתיבי API (Backend עם SQLite) ---
 
 @app.route("/")
 def index():
@@ -888,9 +818,8 @@ def update_profile():
 
     if "avatar" in request.files and request.files["avatar"].filename != "":
         compressed_avatar = compress_image(request.files["avatar"])
-        if compressed_avatar:
-            upload_res = cloudinary.uploader.upload(compressed_avatar, folder="avatars")
-            updates["avatar"] = upload_res["secure_url"]
+        upload_res = cloudinary.uploader.upload(compressed_avatar, folder="avatars")
+        updates["avatar"] = upload_res["secure_url"]
 
     if updates:
         conn = get_db()
@@ -908,14 +837,6 @@ def update_profile():
 
     return jsonify({"success": True})
 
-@app.route("/api/admin/rooms")
-@admin_required
-def admin_get_all_rooms():
-    conn = get_db()
-    rooms = conn.execute("SELECT id, name, city, street, house_num FROM rooms ORDER BY id DESC").fetchall()
-    conn.close()
-    return jsonify({"rooms": [dict(r) for r in rooms]})
-
 @app.route("/api/rooms", methods=["POST"])
 @admin_required
 def create_room():
@@ -931,9 +852,8 @@ def create_room():
     image_url = None
     if "image" in request.files and request.files["image"].filename != "":
         compressed_img = compress_image(request.files["image"])
-        if compressed_img:
-            upload_res = cloudinary.uploader.upload(compressed_img, folder="rooms")
-            image_url = upload_res["secure_url"]
+        upload_res = cloudinary.uploader.upload(compressed_img, folder="rooms")
+        image_url = upload_res["secure_url"]
 
     conn = get_db()
     cursor = conn.cursor()
@@ -981,9 +901,8 @@ def add_room_item(room_id):
     image_url = None
     if "image" in request.files and request.files["image"].filename != "":
         compressed_img = compress_image(request.files["image"])
-        if compressed_img:
-            upload_res = cloudinary.uploader.upload(compressed_img, folder="rooms")
-            image_url = upload_res["secure_url"]
+        upload_res = cloudinary.uploader.upload(compressed_img, folder="rooms")
+        image_url = upload_res["secure_url"]
 
     if text or image_url:
         conn = get_db()
@@ -1067,9 +986,8 @@ def send_suggestion():
     image_url = None
     if "image" in request.files and request.files["image"].filename != "":
         compressed_img = compress_image(request.files["image"])
-        if compressed_img:
-            upload_res = cloudinary.uploader.upload(compressed_img, folder="suggestions")
-            image_url = upload_res["secure_url"]
+        upload_res = cloudinary.uploader.upload(compressed_img, folder="suggestions")
+        image_url = upload_res["secure_url"]
 
     conn = get_db()
     user = conn.execute("SELECT display_name FROM users WHERE username = ?", (session["username"],)).fetchone()
