@@ -19,7 +19,7 @@ ADMIN_PASSWORD = "qwert1234t711"
 # --- חיבור ישיר ומדויק מתוך צילומי המסך שלך (עובד 100%) ---
 cloudinary.config(
     cloud_name="tgu8n7hi",
-    api_key="68973154235792",
+    api_key="689731542357982",
     api_secret="ZUwrOBz_MMfsTbvCJWZGx2AxwbE",
     secure=True
 )
