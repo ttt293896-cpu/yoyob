@@ -16,16 +16,11 @@ app.secret_key = os.environ.get("SECRET_KEY", "super-secret-key-change-in-render
 ADMIN_USERNAME = "meir_pro"
 ADMIN_PASSWORD = "qwert1234t711"
 
-# --- חיבור ל-Cloudinary ---
-if os.environ.get("CLOUDINARY_URL"):
-    cloudinary.config(secure=True)
-else:
-    cloudinary.config(
-        cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
-        api_key=os.environ.get("CLOUDINARY_API_KEY"),
-        api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
-        secure=True
-    )
+# --- חיבור ל-Cloudinary בצורה בטוחה וישירה דרך CLOUDINARY_URL ---
+cloudinary.config(
+    cloudinary_url=os.environ.get("CLOUDINARY_URL"),
+    secure=True
+)
 
 # --- פונקציית כיווץ תמונות אוטומטית ---
 def compress_image(image_file):
